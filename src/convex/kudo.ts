@@ -45,17 +45,20 @@ export async function requireUserId(ctx: AuthCtx): Promise<Id<"users">> {
   return userId;
 }
 
-/** Returns the signed-in (non-anonymous) user document, or null. */
+/**
+ * Returns the signed-in user document, or null. Guest (anonymous) sessions
+ * count: this deployment is single-admin, so anyone who signs in — by email or
+ * as a guest — acts as its administrator.
+ */
 export async function getOptionalUser(ctx: AuthCtx & ReaderCtx): Promise<Doc<"users"> | null> {
   const userId = await getAuthUserId(ctx);
   if (userId === null) return null;
   const user = await ctx.db.get(userId);
   if (!user) return null;
-  if (user.isAnonymous) return null;
   return user;
 }
 
-/** Throws when there is no signed-in (non-anonymous) admin user. */
+/** Throws when there is no signed-in user (guest sessions included). */
 export async function requireUser(ctx: AuthCtx & ReaderCtx): Promise<Doc<"users">> {
   const user = await getOptionalUser(ctx);
   if (!user) throw new Error("You must be signed in as an administrator to do that.");
@@ -67,10 +70,11 @@ export const getUserInfoInternal = internalQuery({
   args: { userId: v.id("users") },
   handler: async (ctx, args) => {
     const user = await ctx.db.get(args.userId);
-    if (!user || user.isAnonymous) {
+    if (!user) {
       throw new Error("You must be signed in as an administrator to do that.");
     }
-    return { _id: user._id, email: user.email ?? "admin" };
+    const email = user.email ?? (user.isAnonymous ? "guest" : "admin");
+    return { _id: user._id, email };
   },
 });
 

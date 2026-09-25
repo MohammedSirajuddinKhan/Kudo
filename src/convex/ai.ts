@@ -121,7 +121,7 @@ export const analyzeTemplate = action({
       }
 
       const apiResponse = await fetch(
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent",
         {
           method: "POST",
           headers: {
@@ -159,19 +159,34 @@ export const analyzeTemplate = action({
       );
 
       if (!apiResponse.ok) {
+        const status = apiResponse.status;
         const message =
-          apiResponse.status === 401 || apiResponse.status === 403
-            ? "The AI analysis API key was rejected. Check the configured GEMINI_API_KEY."
-            : apiResponse.status === 429
-              ? "The AI analysis service is rate-limited right now. Try again in a moment."
-              : "The AI analysis service is unavailable right now. Try again shortly.";
+          status === 400
+            ? "The AI request was rejected. The configured GEMINI_API_KEY may be invalid."
+            : status === 401 || status === 403
+              ? "The AI analysis API key was rejected. Check the configured GEMINI_API_KEY."
+              : status === 404
+                ? "The AI analysis model is not available for this API key."
+                : status === 429
+                  ? "The AI analysis service is rate-limited right now. Try again in a moment."
+                  : status === 503
+                    ? "The AI analysis service is at capacity right now. Try again in a moment."
+                    : "The AI analysis service is unavailable right now. Try again shortly.";
+        // Capture Google's raw reason in the audit trail for diagnostics.
+        const detail = (await apiResponse.json().catch(() => null)) as {
+          error?: { message?: string; status?: string };
+        } | null;
         await ctx.runMutation(internal.kudo.writeAuditInternal, {
           action: "ai.analysis_failed",
           actorId: userId,
           actorEmail: userInfo.email,
           resourceType: "template",
           resourceId: args.templateId,
-          metadata: { reason: message.slice(0, 160) },
+          metadata: {
+            reason: message.slice(0, 160),
+            status,
+            detail: detail?.error?.message?.slice(0, 200),
+          },
         });
         return { ok: false, error: message };
       }

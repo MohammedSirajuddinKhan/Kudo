@@ -108,52 +108,63 @@ export const analyzeTemplate = action({
               ? "image/webp"
               : "image/jpeg";
 
-      // Vision model call. The API key lives server-side; nothing is exposed
-      // to the client. When the key is not configured yet, analysis fails
-      // gracefully and the admin can draw fields manually in the editor.
-      const apiKey = process.env.OPENAI_API_KEY;
+      // Gemini vision call. The API key lives server-side; nothing is
+      // exposed to the client. When the key is not configured yet, analysis
+      // fails gracefully and the admin can draw fields manually in the editor.
+      const apiKey = process.env.GEMINI_API_KEY;
       if (!apiKey) {
         return {
           ok: false,
           error:
-            "AI analysis is not configured yet. Add an OPENAI_API_KEY in the project's API keys settings, or draw the fields manually in the editor.",
+            "AI analysis is not configured yet. Add a GEMINI_API_KEY in the project's API keys settings, or draw the fields manually in the editor.",
         };
       }
 
-      const apiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: "gpt-4o-mini",
-          messages: [
-            { role: "system", content: SYSTEM_PROMPT },
-            {
-              role: "user",
-              content: [
-                {
-                  type: "text",
-                  text:
-                    "Analyze this certificate design and identify the editable regions where personalized " +
-                    'data will be typed. Return JSON: {"fields": [{name, type, x, y, width, height, fontSize, color, confidence}]}. ' +
-                    "Coordinates are fractions (0-1) of the image, top-left origin. Always include one type \"qr\" region in a clear bottom corner.",
-                },
-                { type: "image_url", image_url: { url: `data:${mimeType};base64,${base64}` } },
-              ],
+      const apiResponse = await fetch(
+        "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-goog-api-key": apiKey,
+          },
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+            contents: [
+              {
+                role: "user",
+                parts: [
+                  {
+                    text:
+                      "Analyze this certificate design and identify the editable regions where personalized " +
+                      'data will be typed. Return JSON: {"fields": [{name, type, x, y, width, height, fontSize, color, confidence}]}. ' +
+                      "Coordinates are fractions (0-1) of the image, top-left origin. Always include one type \"qr\" region in a clear bottom corner.",
+                  },
+                  {
+                    inline_data: {
+                      mime_type: mimeType,
+                      data: base64,
+                    },
+                  },
+                ],
+              },
+            ],
+            generationConfig: {
+              temperature: 0.1,
+              maxOutputTokens: 2000,
+              responseMimeType: "application/json",
             },
-          ],
-          temperature: 0.1,
-          max_tokens: 2000,
-        }),
-      });
+          }),
+        },
+      );
 
       if (!apiResponse.ok) {
         const message =
-          apiResponse.status === 401
-            ? "The AI analysis API key was rejected. Check the configured key."
-            : "The AI analysis service is unavailable right now. Try again shortly.";
+          apiResponse.status === 401 || apiResponse.status === 403
+            ? "The AI analysis API key was rejected. Check the configured GEMINI_API_KEY."
+            : apiResponse.status === 429
+              ? "The AI analysis service is rate-limited right now. Try again in a moment."
+              : "The AI analysis service is unavailable right now. Try again shortly.";
         await ctx.runMutation(internal.kudo.writeAuditInternal, {
           action: "ai.analysis_failed",
           actorId: userId,
@@ -166,9 +177,9 @@ export const analyzeTemplate = action({
       }
 
       const completion = (await apiResponse.json()) as {
-        choices?: { message?: { content?: string } }[];
+        candidates?: { content?: { parts?: { text?: string }[] } }[];
       };
-      const raw = completion.choices?.[0]?.message?.content ?? "";
+      const raw = completion.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("") ?? "";
       const parsed = extractJson(raw);
       const candidateFields = Array.isArray(parsed?.fields) ? parsed.fields : [];
 

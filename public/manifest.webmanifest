@@ -1,11 +1,11 @@
 {
-  "name": "freebuff.com application",
-  "short_name": "freebuff.com",
-  "description": "freebuff.com application",
+  "name": "Kudo — Certificate Creator & Verification",
+  "short_name": "Kudo",
+  "description": "Create, issue, and verify digital certificates.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#000000",
+  "background_color": "#f7f9fc",
+  "theme_color": "#3b5bdb",
   "icons": [
     {
       "src": "/logo.svg",

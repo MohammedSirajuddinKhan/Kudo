@@ -92,7 +92,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
               isActive
                 ? "glass-strong text-foreground shadow-sm"
-                : "text-muted-foreground hover:bg-white/40 hover:text-foreground dark:hover:bg-white/5",
+                : "text-muted-foreground hover:bg-white/40 hover:text-foreground dark:hover:bg-white/10",
             )
           }
         >

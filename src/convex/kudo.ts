@@ -119,7 +119,7 @@ export async function getSettings(ctx: { db: any }) {
     .withIndex("by_key", (q: any) => q.eq("key", "global"))
     .unique();
   const defaults = {
-    organizationName: "Demo University",
+    organizationName: "Your Organization",
     certificateIdPrefix: "KUDO",
     certificateIdPadding: 6,
     showQrOnCertificates: true,

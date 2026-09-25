@@ -183,7 +183,7 @@ export default function Certificates() {
       {certs === undefined ? (
         <div className="space-y-2">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-12 animate-pulse rounded-xl bg-white/40" />
+            <div key={i} className="h-12 animate-pulse rounded-xl bg-white/40 dark:bg-white/10" />
           ))}
         </div>
       ) : certs.length === 0 ? (

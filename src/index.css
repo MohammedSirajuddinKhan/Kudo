@@ -94,6 +94,53 @@
   --glass-saturate: 180%;
 }
 
+/* Dark theme — same hues, inverted lightness, dimmer glass */
+.dark {
+  --radius: 0.75rem;
+  --background: oklch(0.16 0.022 255);
+  --foreground: oklch(0.93 0.012 230);
+  --card: oklch(0.22 0.024 255 / 68%);
+  --card-foreground: oklch(0.93 0.012 230);
+  --popover: oklch(0.20 0.024 255 / 92%);
+  --popover-foreground: oklch(0.93 0.012 230);
+  --primary: oklch(0.70 0.12 250);
+  --primary-foreground: oklch(0.15 0.03 255);
+  --secondary: oklch(0.27 0.024 255);
+  --secondary-foreground: oklch(0.92 0.012 230);
+  --muted: oklch(0.25 0.024 255);
+  --muted-foreground: oklch(0.70 0.02 250);
+  --accent: oklch(0.29 0.032 250);
+  --accent-foreground: oklch(0.92 0.012 230);
+  --destructive: oklch(0.66 0.19 25);
+  --success: oklch(0.72 0.14 155);
+  --warning: oklch(0.79 0.14 75);
+  --border: oklch(0.93 0.01 230 / 12%);
+  --input: oklch(0.93 0.01 230 / 14%);
+  --ring: oklch(0.70 0.12 250 / 45%);
+  --chart-1: oklch(0.72 0.12 255);
+  --chart-2: oklch(0.76 0.10 195);
+  --chart-3: oklch(0.70 0.13 300);
+  --chart-4: oklch(0.80 0.11 200);
+  --chart-5: oklch(0.72 0.11 160);
+  --sidebar: oklch(0.20 0.024 255 / 66%);
+  --sidebar-foreground: oklch(0.93 0.012 230);
+  --sidebar-primary: oklch(0.70 0.12 250);
+  --sidebar-primary-foreground: oklch(0.15 0.03 255);
+  --sidebar-accent: oklch(0.28 0.03 250);
+  --sidebar-accent-foreground: oklch(0.92 0.012 230);
+  --sidebar-border: oklch(0.93 0.01 230 / 10%);
+  --sidebar-ring: oklch(0.70 0.12 250 / 45%);
+  --glass: oklch(0.26 0.028 255 / 52%);
+  --glass-strong: oklch(0.24 0.028 255 / 78%);
+  --glass-border: oklch(0.93 0.01 230 / 9%);
+  --glass-border-strong: oklch(0.93 0.01 230 / 18%);
+  --glass-highlight: oklch(1 0 0 / 9%);
+  --glass-shadow: 0 8px 32px oklch(0 0 0 / 35%);
+  --glass-shadow-lg: 0 16px 48px oklch(0 0 0 / 45%);
+  --glass-blur: 20px;
+  --glass-saturate: 150%;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -116,6 +163,9 @@
   ::selection {
     background: oklch(0.54 0.13 255 / 0.18);
   }
+  .dark ::selection {
+    background: oklch(0.70 0.12 250 / 0.32);
+  }
   ::-webkit-scrollbar {
     width: 10px;
     height: 10px;
@@ -130,9 +180,62 @@
     background: oklch(0.24 0.03 255 / 0.3);
     background-clip: content-box;
   }
+  .dark ::-webkit-scrollbar-thumb {
+    background: oklch(0.93 0.01 230 / 0.18);
+    background-clip: content-box;
+  }
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: oklch(0.93 0.01 230 / 0.3);
+    background-clip: content-box;
+  }
   ::-webkit-scrollbar-track {
     background: transparent;
   }
+}
+
+/* Dark body glow — same composition, luminance flipped */
+.dark body {
+  background-image:
+    radial-gradient(1200px 800px at 12% -10%, oklch(0.32 0.07 255 / 0.55), transparent 60%),
+    radial-gradient(1000px 700px at 90% -5%, oklch(0.30 0.06 195 / 0.5), transparent 55%),
+    radial-gradient(900px 900px at 50% 115%, oklch(0.32 0.06 285 / 0.4), transparent 60%);
+}
+
+/* Dark overrides for light-tinted glass utilities */
+.dark .glass-inset {
+  background: oklch(1 0 0 / 6%);
+  border-color: oklch(0.93 0.01 230 / 9%);
+  box-shadow: inset 0 1px 0 oklch(1 0 0 / 7%);
+}
+.dark .glass-input {
+  background: oklch(1 0 0 / 5%);
+  border-color: oklch(0.93 0.01 230 / 14%);
+  box-shadow: inset 0 1px 0 oklch(1 0 0 / 5%);
+}
+.dark .glass-input::placeholder {
+  color: oklch(0.70 0.02 250 / 60%);
+}
+.dark .glass-hover:hover {
+  border-color: oklch(0.93 0.01 230 / 18%);
+  box-shadow:
+    inset 0 1px 0 var(--glass-highlight),
+    0 14px 40px oklch(0 0 0 / 40%);
+}
+.dark .glass-grid-bg {
+  background-image:
+    linear-gradient(oklch(0.93 0.01 230 / 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(0.93 0.01 230 / 0.05) 1px, transparent 1px);
+}
+.dark .text-gradient {
+  background: linear-gradient(120deg, oklch(0.78 0.11 260), oklch(0.75 0.10 205));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.dark .editor-canvas {
+  box-shadow:
+    0 10px 40px oklch(0 0 0 / 45%),
+    0 2px 8px oklch(0 0 0 / 35%);
 }
 
 /* ─── Glassmorphism utilities ─────────────────────────────── */

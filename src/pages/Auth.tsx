@@ -122,7 +122,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                   <Input
                     id="email"
                     name="email"
-                    placeholder="admin@college.edu"
+                    placeholder="admin@yourdomain.com"
                     type="email"
                     className="glass-input pl-9"
                     disabled={isLoading}

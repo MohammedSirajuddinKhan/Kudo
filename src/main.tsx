@@ -1,9 +1,11 @@
 import '@vly-ai/integrations';
 import { Toaster } from "@/components/ui/sonner";
 import { RequireAuth } from "@/components/RequireAuth";
+import { DashboardLayout } from "@/components/DashboardLayout";
 import { VlyToolbar } from "../vly-toolbar-readonly.tsx";
 import { ConvexAuthProvider } from "@convex-dev/auth/react";
 import { ConvexReactClient } from "convex/react";
+import { ThemeProvider } from "next-themes";
 import React, { StrictMode, useEffect, lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router";
@@ -13,6 +15,18 @@ import "./index.css";
 const Landing = lazy(() => import("./pages/Landing.tsx"));
 const AuthPage = lazy(() => import("./pages/Auth.tsx"));
 const Dashboard = lazy(() => import("./pages/Dashboard.tsx"));
+const Templates = lazy(() => import("./pages/Templates.tsx"));
+const NewTemplate = lazy(() => import("./pages/NewTemplate.tsx"));
+const TemplateEditor = lazy(() => import("./pages/TemplateEditor.tsx"));
+const Certificates = lazy(() => import("./pages/Certificates.tsx"));
+const CertificateCreate = lazy(() => import("./pages/CertificateCreate.tsx"));
+const CertificateDetail = lazy(() => import("./pages/CertificateDetail.tsx"));
+const BulkCreate = lazy(() => import("./pages/BulkCreate.tsx"));
+const BulkJobDetail = lazy(() => import("./pages/BulkJobDetail.tsx"));
+const Reports = lazy(() => import("./pages/Reports.tsx"));
+const AuditLogs = lazy(() => import("./pages/AuditLogs.tsx"));
+const Settings = lazy(() => import("./pages/Settings.tsx"));
+const Verify = lazy(() => import("./pages/Verify.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 // Simple loading fallback for route transitions
@@ -21,6 +35,15 @@ function RouteLoading() {
     <div className="min-h-screen flex items-center justify-center">
       <div className="animate-pulse text-muted-foreground">Loading...</div>
     </div>
+  );
+}
+
+/** Authenticated route: requires sign-in and renders inside the admin shell. */
+function DashboardRoute({ children }: { children: React.ReactNode }) {
+  return (
+    <RequireAuth>
+      <DashboardLayout>{children}</DashboardLayout>
+    </RequireAuth>
   );
 }
 
@@ -111,33 +134,42 @@ function RouteSyncer() {
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <RootErrorBoundary>
-      <ToolbarErrorBoundary>
-        <VlyToolbar />
-      </ToolbarErrorBoundary>
-      <ConvexAuthProvider client={convex}>
-        <BrowserRouter>
-          <RouteSyncer />
-          <Suspense fallback={<RouteLoading />}>
-            <Routes>
-              <Route path="/" element={<Landing />} />
-              <Route
-                path="/auth"
-                element={<AuthPage redirectAfterAuth="/dashboard" />}
-              />
-              <Route
-                path="/dashboard"
-                element={
-                  <RequireAuth>
-                    <Dashboard />
-                  </RequireAuth>
-                }
-              />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-        </BrowserRouter>
-        <Toaster />
-      </ConvexAuthProvider>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <ToolbarErrorBoundary>
+          <VlyToolbar />
+        </ToolbarErrorBoundary>
+        <ConvexAuthProvider client={convex}>
+          <BrowserRouter>
+            <RouteSyncer />
+            <Suspense fallback={<RouteLoading />}>
+              <Routes>
+                {/* Public */}
+                <Route path="/" element={<Landing />} />
+                <Route path="/auth" element={<AuthPage redirectAfterAuth="/dashboard" />} />
+                <Route path="/verify" element={<Verify />} />
+                <Route path="/verify/:certificateId" element={<Verify />} />
+
+                {/* Authenticated admin area */}
+                <Route path="/dashboard" element={<DashboardRoute><Dashboard /></DashboardRoute>} />
+                <Route path="/templates" element={<DashboardRoute><Templates /></DashboardRoute>} />
+                <Route path="/templates/new" element={<DashboardRoute><NewTemplate /></DashboardRoute>} />
+                <Route path="/templates/:id/edit" element={<DashboardRoute><TemplateEditor /></DashboardRoute>} />
+                <Route path="/certificates" element={<DashboardRoute><Certificates /></DashboardRoute>} />
+                <Route path="/certificates/new" element={<DashboardRoute><CertificateCreate /></DashboardRoute>} />
+                <Route path="/certificates/:id" element={<DashboardRoute><CertificateDetail /></DashboardRoute>} />
+                <Route path="/bulk" element={<DashboardRoute><BulkCreate /></DashboardRoute>} />
+                <Route path="/bulk/:jobId" element={<DashboardRoute><BulkJobDetail /></DashboardRoute>} />
+                <Route path="/reports" element={<DashboardRoute><Reports /></DashboardRoute>} />
+                <Route path="/audit" element={<DashboardRoute><AuditLogs /></DashboardRoute>} />
+                <Route path="/settings" element={<DashboardRoute><Settings /></DashboardRoute>} />
+
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </BrowserRouter>
+          <Toaster />
+        </ConvexAuthProvider>
+      </ThemeProvider>
     </RootErrorBoundary>
   </StrictMode>,
 );

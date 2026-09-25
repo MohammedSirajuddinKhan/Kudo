@@ -53,7 +53,7 @@ export default function Reports() {
       {reports === undefined ? (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-28 animate-pulse rounded-2xl bg-white/40" />
+            <div key={i} className="h-28 animate-pulse rounded-2xl bg-white/40 dark:bg-white/10" />
           ))}
         </div>
       ) : (
@@ -172,7 +172,7 @@ export default function Reports() {
                         <span className="truncate font-medium">{t.name}</span>
                         <span className="text-muted-foreground">{t.count}</span>
                       </div>
-                      <div className="h-2 overflow-hidden rounded-full bg-white/50">
+                      <div className="h-2 overflow-hidden rounded-full bg-white/50 dark:bg-white/10">
                         <div
                           className="h-full rounded-full bg-primary/70"
                           style={{ width: `${Math.max(4, (t.count / max) * 100)}%` }}

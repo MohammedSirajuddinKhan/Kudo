@@ -142,7 +142,7 @@ export function EditorToolbar(props: {
 }) {
   return (
     <GlassPanel strong className="mb-3 flex flex-wrap items-center gap-1.5 p-2.5">
-      <div className="flex items-center rounded-lg bg-white/40 p-0.5">
+      <div className="flex items-center rounded-lg bg-white/40 p-0.5 dark:bg-white/10">
         <Button variant={props.mode === "edit" ? "secondary" : "ghost"} size="sm" onClick={() => props.setMode("edit")}>
           <Pencil className="mr-1 size-3.5" /> Edit
         </Button>

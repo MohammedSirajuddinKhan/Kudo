@@ -5,36 +5,14 @@ import { toast } from "sonner";
 import { api } from "@/convex/_generated/api";
 import {
   ArrowLeft,
-  Copy,
-  Eye,
-  Grid3x3,
   Loader2,
-  MousePointer2,
-  Pencil,
   Plus,
-  Redo2,
-  Save,
-  Sparkles,
-  Trash2,
-  Undo2,
-  ZoomIn,
-  ZoomOut,
 } from "lucide-react";
-import { GlassPanel, PageHeader } from "@/components/glass";
+import { GlassPanel } from "@/components/glass";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
-import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { CertificateField } from "@/lib/certificate";
 import { DEFAULT_FONT } from "@/lib/certificate";
 import { EditorChrome, EditorToolbar, PreviewCanvas, FieldInspector } from "./template-editor-parts";
@@ -101,12 +79,14 @@ export default function TemplateEditor() {
     dragMode: "move" | "resize";
   } | null>(null);
 
-  useEffect(() => {
-    if (template && fields === null) {
-      setFields(template.fields ?? []);
-      setName(template.name);
-    }
-  }, [template, fields]);
+  // Hydrate the editor from the loaded template exactly once, during render
+  // (React re-renders immediately with the data), instead of in an effect.
+  const [hydratedFor, setHydratedFor] = useState<string | null>(null);
+  if (template && fields === null && hydratedFor !== template._id) {
+    setHydratedFor(template._id);
+    setFields(template.fields ?? []);
+    setName(template.name);
+  }
 
   const pushHistory = useCallback(() => {
     setFields((cur) => {
@@ -304,7 +284,9 @@ export default function TemplateEditor() {
   };
 
   const editorRef = useRef<{ runAi: () => Promise<void> }>({ runAi: async () => {} });
-  editorRef.current.runAi = runAi;
+  useEffect(() => {
+    editorRef.current.runAi = runAi;
+  });
 
   // Auto-run AI when arriving from the wizard with runAi=true.
   const aiRanRef = useRef(false);
@@ -352,19 +334,6 @@ export default function TemplateEditor() {
       hasFields={textFields.length > 0}
       onSave={() => void handleSave()}
       saving={saving}
-      mode={mode}
-      setMode={setMode}
-      onUndo={undo}
-      onRedo={redo}
-      canUndo={undoStack.length > 0}
-      canRedo={redoStack.length > 0}
-      drawing={drawing}
-      toggleDrawing={() => setDrawing((d) => !d)}
-      onAdd={addField}
-      showGrid={showGrid}
-      toggleGrid={() => setShowGrid((g) => !g)}
-      zoom={zoom}
-      setZoom={setZoom}
     >
       <EditorToolbar
         mode={mode}

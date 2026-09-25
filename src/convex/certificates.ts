@@ -1,7 +1,6 @@
 import { v } from "convex/values";
-import { internalMutation, mutation, query } from "./_generated/server";
+import { mutation, query, type MutationCtx } from "./_generated/server";
 import { requireUser, getSettings, logAudit } from "./kudo";
-import type { Id } from "./_generated/dataModel";
 
 /** Format an ISO date (yyyy-mm-dd) as "25 September 2026". */
 export function formatDate(iso: string): string {
@@ -13,7 +12,7 @@ export function formatDate(iso: string): string {
 }
 
 /** Mint the next sequential certificate id: PREFIX-YEAR-NNNNNN. */
-async function mintId(ctx: any, prefix: string, padding: number, year: number) {
+async function mintId(ctx: MutationCtx, prefix: string, padding: number, year: number) {
   const key = `cert-${year}`;
   const counter = await ctx.db
     .query("counters")
@@ -58,7 +57,6 @@ export const publicVerify = mutation({
     if (result === "verified") {
       await ctx.db.patch(cert._id, { verifyCount: cert.verifyCount + 1 });
     }
-    const template = await ctx.db.get(cert.templateId);
     return {
       result,
       certificate: {

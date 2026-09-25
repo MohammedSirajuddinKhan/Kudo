@@ -4,7 +4,6 @@ import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import {
   AlertTriangle,
-  ArrowRight,
   BadgeCheck,
   Ban,
   FileWarning,
@@ -101,9 +100,33 @@ export default function Verify() {
 
   useEffect(() => {
     const initial = routeId ?? qrId;
-    if (initial) void runVerify(initial);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [routeId, qrId]);
+    if (!initial) return;
+    let cancelled = false;
+    void (async () => {
+      const clean = initial.trim().toUpperCase();
+      if (!clean) return;
+      setSubmitted(clean);
+      setLoading(true);
+      setError(null);
+      try {
+        const r = await verify({ certificateId: clean });
+        if (!cancelled) setResult(r);
+      } catch (e) {
+        if (!cancelled)
+          setError(
+            e instanceof Error
+              ? e.message
+              : "Verification failed. Check your connection and try again.",
+          );
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+      setLoading(false);
+    };
+  }, [routeId, qrId, verify]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

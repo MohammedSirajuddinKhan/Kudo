@@ -134,7 +134,7 @@ export function parseSpreadsheet(file: File): Promise<ParsedSheet> {
           return out;
         });
         resolve({ columns: Array.from(columns), rows });
-      } catch (e) {
+      } catch {
         reject(new Error("The file could not be parsed as a spreadsheet. Check the format."));
       }
     };

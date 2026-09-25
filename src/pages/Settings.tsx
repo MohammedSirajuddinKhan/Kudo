@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
 import { api } from "@/convex/_generated/api";
@@ -13,22 +13,34 @@ export default function Settings() {
   const settings = useQuery(api.templates.getSettingsQuery);
   const update = useMutation(api.audit.updateSettings);
 
-  const [orgName, setOrgName] = useState("");
-  const [prefix, setPrefix] = useState("");
-  const [padding, setPadding] = useState("6");
-  const [showQr, setShowQr] = useState(true);
+  // null = not yet initialized; once server data arrives we snapshot the form.
+  const [form, setForm] = useState<{
+    orgName: string;
+    prefix: string;
+    padding: string;
+    showQr: boolean;
+  } | null>(null);
   const [saving, setSaving] = useState(false);
-  const [loaded, setLoaded] = useState(false);
 
-  useEffect(() => {
-    if (settings && !loaded) {
-      setOrgName(settings.organizationName);
-      setPrefix(settings.certificateIdPrefix);
-      setPadding(String(settings.certificateIdPadding));
-      setShowQr(settings.showQrOnCertificates);
-      setLoaded(true);
-    }
-  }, [settings, loaded]);
+  // Initialize exactly once when the server data arrives (render-phase —
+  // React re-renders immediately, no effect needed).
+  if (form === null && settings !== undefined) {
+    setForm({
+      orgName: settings.organizationName,
+      prefix: settings.certificateIdPrefix,
+      padding: String(settings.certificateIdPadding),
+      showQr: settings.showQrOnCertificates,
+    });
+  }
+
+  const orgName = form?.orgName ?? "";
+  const prefix = form?.prefix ?? "";
+  const padding = form?.padding ?? "6";
+  const showQr = form?.showQr ?? true;
+  const setOrgName = (v: string) => setForm((f) => (f ? { ...f, orgName: v } : f));
+  const setPrefix = (v: string) => setForm((f) => (f ? { ...f, prefix: v } : f));
+  const setPadding = (v: string) => setForm((f) => (f ? { ...f, padding: v } : f));
+  const setShowQr = (v: boolean) => setForm((f) => (f ? { ...f, showQr: v } : f));
 
   const handleSave = async () => {
     setSaving(true);

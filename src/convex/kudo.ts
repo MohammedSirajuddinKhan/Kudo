@@ -1,7 +1,15 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { internalMutation, internalQuery, mutation } from "./_generated/server";
+import type { MutationCtx, QueryCtx } from "./_generated/server";
 import { v } from "convex/values";
 import type { Doc, Id } from "./_generated/dataModel";
+
+/** The auth surface shared by queries, mutations and actions. */
+type AuthCtx = Parameters<typeof getAuthUserId>[0];
+/** Read-only database access (queries; also satisfied by mutations). */
+type ReaderCtx = { db: QueryCtx["db"] };
+/** Writable database access (mutations). */
+type WriterCtx = { db: MutationCtx["db"] };
 
 /**
  * Generate a short-lived upload URL for Convex file storage. Only signed-in
@@ -10,7 +18,7 @@ import type { Doc, Id } from "./_generated/dataModel";
  */
 export const generateUploadUrl = mutation({
   args: { fileName: v.string() },
-  handler: async (ctx, _args) => {
+  handler: async (ctx) => {
     await requireUser(ctx);
     return await ctx.storage.generateUploadUrl();
   },
@@ -20,7 +28,7 @@ export const generateUploadUrl = mutation({
  * Returns the signed-in user id, or null. Works in queries, mutations and
  * actions (anything with an auth context).
  */
-export async function getOptionalUserId(ctx: { auth: any }): Promise<Id<"users"> | null> {
+export async function getOptionalUserId(ctx: AuthCtx): Promise<Id<"users"> | null> {
   try {
     return await getAuthUserId(ctx);
   } catch {
@@ -29,7 +37,7 @@ export async function getOptionalUserId(ctx: { auth: any }): Promise<Id<"users">
 }
 
 /** Requires a signed-in user id. Works in queries, mutations and actions. */
-export async function requireUserId(ctx: { auth: any }): Promise<Id<"users">> {
+export async function requireUserId(ctx: AuthCtx): Promise<Id<"users">> {
   const userId = await getAuthUserId(ctx);
   if (userId === null) {
     throw new Error("You must be signed in as an administrator to do that.");
@@ -37,8 +45,8 @@ export async function requireUserId(ctx: { auth: any }): Promise<Id<"users">> {
   return userId;
 }
 
-/** Returns the signed-in (non-anonymous) user document, or null. DB contexts only. */
-export async function getOptionalUser(ctx: { db: any; auth: any }): Promise<Doc<"users"> | null> {
+/** Returns the signed-in (non-anonymous) user document, or null. */
+export async function getOptionalUser(ctx: AuthCtx & ReaderCtx): Promise<Doc<"users"> | null> {
   const userId = await getAuthUserId(ctx);
   if (userId === null) return null;
   const user = await ctx.db.get(userId);
@@ -47,8 +55,8 @@ export async function getOptionalUser(ctx: { db: any; auth: any }): Promise<Doc<
   return user;
 }
 
-/** Throws when there is no signed-in (non-anonymous) admin user. DB contexts only. */
-export async function requireUser(ctx: { db: any; auth: any }): Promise<Doc<"users">> {
+/** Throws when there is no signed-in (non-anonymous) admin user. */
+export async function requireUser(ctx: AuthCtx & ReaderCtx): Promise<Doc<"users">> {
   const user = await getOptionalUser(ctx);
   if (!user) throw new Error("You must be signed in as an administrator to do that.");
   return user;
@@ -91,14 +99,14 @@ export const writeAuditInternal = internalMutation({
 
 /** Append to the audit log (append-only; no update/delete exposed). DB contexts only. */
 export async function logAudit(
-  ctx: { db: any },
+  ctx: WriterCtx,
   entry: {
     action: string;
     actorId?: Id<"users"> | null;
     actorEmail?: string | null;
     resourceType: string;
     resourceId?: string;
-    metadata?: any;
+    metadata?: unknown;
   },
 ) {
   await ctx.db.insert("auditLogs", {
@@ -113,10 +121,10 @@ export async function logAudit(
 }
 
 /** Default deployment settings, merged with the stored settings row. */
-export async function getSettings(ctx: { db: any }) {
+export async function getSettings(ctx: ReaderCtx) {
   const stored = await ctx.db
     .query("settings")
-    .withIndex("by_key", (q: any) => q.eq("key", "global"))
+    .withIndex("by_key", (q) => q.eq("key", "global"))
     .unique();
   const defaults = {
     organizationName: "Your Organization",

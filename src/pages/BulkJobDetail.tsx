@@ -5,8 +5,6 @@ import { toast } from "sonner";
 import { api } from "@/convex/_generated/api";
 import {
   ArrowLeft,
-  Download,
-  FileSpreadsheet,
   Loader2,
   Package,
 } from "lucide-react";

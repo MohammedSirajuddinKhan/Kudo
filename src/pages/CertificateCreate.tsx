@@ -6,20 +6,13 @@ import { api } from "@/convex/_generated/api";
 import {
   ArrowLeft,
   CheckCircle2,
-  Copy,
-  Download,
-  FileDown,
-  ImageDown,
   Link2,
   Loader2,
-  Printer,
-  QrCode,
   Send,
   Sparkles,
 } from "lucide-react";
 import { GlassPanel, PageHeader, EmptyState, formatDate } from "@/components/glass";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -33,7 +26,6 @@ import {
   PreviewCanvasLight,
 } from "@/components/certificate-canvas";
 import type { CertificateField } from "@/lib/certificate";
-import { cn } from "@/lib/utils";
 
 export default function CertificateCreate() {
   const navigate = useNavigate();
@@ -44,7 +36,6 @@ export default function CertificateCreate() {
   const settings = useQuery(api.templates.getSettingsQuery);
   const generate = useMutation(api.certificates.generateCertificate);
 
-  const [templateId, setTemplateId] = useState<string | null>(preselect);
   const [recipientName, setRecipientName] = useState("");
   const [recipientEmail, setRecipientEmail] = useState("");
   const [issueDate, setIssueDate] = useState(new Date().toISOString().slice(0, 10));
@@ -53,11 +44,14 @@ export default function CertificateCreate() {
   const [generating, setGenerating] = useState(false);
   const [done, setDone] = useState<{ id: string; certificateId: string } | null>(null);
 
-  useEffect(() => {
-    if (!templateId && templates && templates.length > 0) {
-      setTemplateId(templates[0]._id);
-    }
-  }, [templates, templateId]);
+  // Default to the first ready template via lazy init (no effect needed).
+  const [templateId, setTemplateId] = useState<string | null>(preselect ?? null);
+  const [defaulted, setDefaulted] = useState(false);
+  if (!templateId && !defaulted && templates && templates.length > 0) {
+    const ready = templates.find((t) => t.status === "ready") ?? templates[0];
+    setTemplateId(ready._id);
+    setDefaulted(true);
+  }
 
   const template = useMemo(
     () => templates?.find((t) => t._id === templateId) ?? null,

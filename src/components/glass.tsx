@@ -1,5 +1,5 @@
 import { useTheme } from "next-themes";
-import { useEffect, useState, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Moon, Sun } from "lucide-react";
@@ -117,20 +117,17 @@ export function EmptyState({
 
 export function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  // next-themes resolves the theme on the client; SSR/first paint always shows
+  // Moon, which is correct for the default light theme.
+  const isDark = resolvedTheme === "dark";
   return (
     <Button
       variant="ghost"
       size="icon"
-      aria-label="Toggle color theme"
-      onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      onClick={() => setTheme(isDark ? "light" : "dark")}
     >
-      {mounted && resolvedTheme === "dark" ? (
-        <Sun className="size-4" />
-      ) : (
-        <Moon className="size-4" />
-      )}
+      {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
     </Button>
   );
 }

@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { internalMutation, mutation, query } from "./_generated/server";
+import { mutation, query, type MutationCtx } from "./_generated/server";
 import { requireUser, getSettings, logAudit } from "./kudo";
 
 export const createJob = mutation({
@@ -83,7 +83,7 @@ export const listJobs = query({
 });
 
 /** Mint the next certificate id for a year (PREFIX-YEAR-NNNNNN). */
-async function mintId(ctx: any, prefix: string, padding: number, year: number) {
+async function mintId(ctx: MutationCtx, prefix: string, padding: number, year: number) {
   const key = `cert-${year}`;
   const counter = await ctx.db
     .query("counters")

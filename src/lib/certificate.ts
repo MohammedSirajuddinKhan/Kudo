@@ -261,12 +261,15 @@ export async function renderCertificate(
     fields: CertificateField[];
     values: Record<string, string>;
     certificateId: string;
-    verifyUrl: string;
+    /** Embedded in the verification QR code. Falls back to the current origin. */
+    verifyUrl?: string;
     showQr: boolean;
     qrFieldId?: string | null;
   } & RenderOptions,
 ): Promise<void> {
-  const { imageUrl, assetWidth, assetHeight, fields, values, certificateId, verifyUrl, showQr, qrFieldId, qrImage } = opts;
+  // opts.verifyUrl is accepted for API completeness: callers use it to render
+  // the QR image itself (loadQrImage), which is then passed in as qrImage.
+  const { imageUrl, assetWidth, assetHeight, fields, values, certificateId, showQr, qrFieldId, qrImage } = opts;
   const scale = opts.scale ?? 1;
   canvas.width = Math.round(assetWidth * scale);
   canvas.height = Math.round(assetHeight * scale);

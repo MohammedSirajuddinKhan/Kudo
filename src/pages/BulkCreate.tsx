@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
+// (Input import removed — unused)
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
@@ -15,7 +16,6 @@ import {
 } from "lucide-react";
 import { GlassPanel, PageHeader, EmptyState } from "@/components/glass";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";

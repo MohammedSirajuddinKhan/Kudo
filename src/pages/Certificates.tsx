@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
@@ -10,7 +10,6 @@ import {
   Search,
   Eye,
   MoreHorizontal,
-  RefreshCw,
 } from "lucide-react";
 import { GlassPanel, PageHeader, EmptyState, formatDateTime } from "@/components/glass";
 import { Button } from "@/components/ui/button";
@@ -28,7 +27,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {

@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { action, internalQuery } from "./_generated/server";
-import { requireUserId, writeAuditInternal } from "./kudo";
+import { requireUserId } from "./kudo";
 import { internal } from "./_generated/api";
 
 const SYSTEM_PROMPT = `You are a certificate template analyzer for Kudo, a digital certificate platform.
@@ -108,34 +108,52 @@ export const analyzeTemplate = action({
               ? "image/webp"
               : "image/jpeg";
 
-      // The VLY integration gateway routes to a vision-capable model. The API
-      // key lives server-side; nothing is exposed to the client.
-      const { createVlyIntegrations } = await import("@vly-ai/integrations");
-      const vly = createVlyIntegrations({ deploymentToken: process.env.VLY_INTEGRATION_KEY! });
-      const completion = await vly.ai.completion({
-        model: "gpt-4o-mini",
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          {
-            role: "user",
-            content: [
-              {
-                type: "text",
-                text:
-                  "Analyze this certificate design and identify the editable regions where personalized " +
-                  'data will be typed. Return JSON: {"fields": [{name, type, x, y, width, height, fontSize, color, confidence}]}. ' +
-                  "Coordinates are fractions (0-1) of the image, top-left origin. Always include one type \"qr\" region in a clear bottom corner.",
-              },
-              { type: "image", image: `data:${mimeType};base64,${base64}` },
-            ] as unknown as string,
-          },
-        ],
-        temperature: 0.1,
-        maxTokens: 2000,
+      // Vision model call. The API key lives server-side; nothing is exposed
+      // to the client. When the key is not configured yet, analysis fails
+      // gracefully and the admin can draw fields manually in the editor.
+      const apiKey = process.env.OPENAI_API_KEY;
+      if (!apiKey) {
+        return {
+          ok: false,
+          error:
+            "AI analysis is not configured yet. Add an OPENAI_API_KEY in the project's API keys settings, or draw the fields manually in the editor.",
+        };
+      }
+
+      const apiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          messages: [
+            { role: "system", content: SYSTEM_PROMPT },
+            {
+              role: "user",
+              content: [
+                {
+                  type: "text",
+                  text:
+                    "Analyze this certificate design and identify the editable regions where personalized " +
+                    'data will be typed. Return JSON: {"fields": [{name, type, x, y, width, height, fontSize, color, confidence}]}. ' +
+                    "Coordinates are fractions (0-1) of the image, top-left origin. Always include one type \"qr\" region in a clear bottom corner.",
+                },
+                { type: "image_url", image_url: { url: `data:${mimeType};base64,${base64}` } },
+              ],
+            },
+          ],
+          temperature: 0.1,
+          max_tokens: 2000,
+        }),
       });
 
-      if (!completion.success || !completion.data) {
-        const message = completion.error ?? "The AI analysis service is unavailable right now.";
+      if (!apiResponse.ok) {
+        const message =
+          apiResponse.status === 401
+            ? "The AI analysis API key was rejected. Check the configured key."
+            : "The AI analysis service is unavailable right now. Try again shortly.";
         await ctx.runMutation(internal.kudo.writeAuditInternal, {
           action: "ai.analysis_failed",
           actorId: userId,
@@ -147,7 +165,10 @@ export const analyzeTemplate = action({
         return { ok: false, error: message };
       }
 
-      const raw = completion.data.choices?.[0]?.message?.content ?? "";
+      const completion = (await apiResponse.json()) as {
+        choices?: { message?: { content?: string } }[];
+      };
+      const raw = completion.choices?.[0]?.message?.content ?? "";
       const parsed = extractJson(raw);
       const candidateFields = Array.isArray(parsed?.fields) ? parsed.fields : [];
 
@@ -156,7 +177,7 @@ export const analyzeTemplate = action({
       const seen = new Set<string>();
       const fields: AiField[] = [];
       let index = 1;
-      for (const f of candidateFields as any[]) {
+      for (const f of candidateFields as Record<string, unknown>[]) {
         if (!f || typeof f !== "object") continue;
         const x = clamp01(Number(f.x));
         const y = clamp01(Number(f.y));

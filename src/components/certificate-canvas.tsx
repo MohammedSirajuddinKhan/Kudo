@@ -25,7 +25,6 @@ export function PreviewCanvasLight({
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    let cancelled = false;
     const draw = async () => {
       if (!canvasRef.current) return;
       try {
@@ -47,9 +46,6 @@ export function PreviewCanvasLight({
       }
     };
     void draw();
-    return () => {
-      cancelled = true;
-    };
   }, [renderUrl, assetWidth, assetHeight, fields, values, certificateId, showQr, qrImage]);
 
   return (

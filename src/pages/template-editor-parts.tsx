@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { CertificateField } from "@/lib/certificate";
-import { FIELD_TYPE_LABELS, FONT_OPTIONS, renderCertificate, loadQrImage, loadImage } from "@/lib/certificate";
+import { FIELD_TYPE_LABELS, FONT_OPTIONS, renderCertificate, loadQrImage } from "@/lib/certificate";
 import { cn } from "@/lib/utils";
 
 type Patch = Partial<CertificateField>;
@@ -46,19 +46,6 @@ export function EditorChrome({
   hasFields,
   onSave,
   saving,
-  mode,
-  setMode,
-  onUndo,
-  onRedo,
-  canUndo,
-  canRedo,
-  drawing,
-  toggleDrawing,
-  onAdd,
-  showGrid,
-  toggleGrid,
-  zoom,
-  setZoom,
   children,
 }: {
   templateName: string;
@@ -70,19 +57,6 @@ export function EditorChrome({
   hasFields: boolean;
   onSave: () => void;
   saving: boolean;
-  mode: "edit" | "preview";
-  setMode: (m: "edit" | "preview") => void;
-  onUndo: () => void;
-  onRedo: () => void;
-  canUndo: boolean;
-  canRedo: boolean;
-  drawing: boolean;
-  toggleDrawing: () => void;
-  onAdd: () => void;
-  showGrid: boolean;
-  toggleGrid: () => void;
-  zoom: number;
-  setZoom: (fn: (z: number) => number) => void;
   children: React.ReactNode;
 }) {
   return (
@@ -243,11 +217,6 @@ export function PreviewCanvas({
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const qrRef = useRef<HTMLImageElement | null>(null);
-  const [verifyBase, setVerifyBase] = useState("");
-
-  useEffect(() => {
-    setVerifyBase(window.location.origin);
-  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -265,7 +234,7 @@ export function PreviewCanvas({
           fields,
           values,
           certificateId,
-          verifyUrl: verifyUrl || `${verifyBase}/verify/${certificateId}`,
+          verifyUrl: verifyUrl || `${window.location.origin}/verify/${certificateId}`,
           showQr,
           qrImage: qrRef.current,
           testMode: true,
@@ -279,7 +248,7 @@ export function PreviewCanvas({
     return () => {
       cancelled = true;
     };
-  }, [renderUrl, assetWidth, assetHeight, fields, values, certificateId, verifyUrl, showQr, verifyBase]);
+  }, [renderUrl, assetWidth, assetHeight, fields, values, certificateId, verifyUrl, showQr]);
 
   return (
     <canvas

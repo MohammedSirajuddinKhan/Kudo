@@ -6,13 +6,13 @@ import { defineConfig } from "vite";
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), vlyPlugin(), tailwindcss()],
+  plugins: [vlyPlugin(), react(), tailwindcss()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
-    // Force a single copy of React across all packages (including vlyPlugin).
-    // Without this, @vly-ai/integrations can resolve its own React copy, which
+    // Force a single copy of React across all packages.
+    // Without this, bundled packages can resolve their own React copy, which
     // triggers "Invalid hook call" errors at runtime.
     dedupe: ["react", "react/jsx-runtime", "react-dom", "react-dom/client"],
   },
@@ -26,7 +26,7 @@ export default defineConfig({
         manualChunks: {
           // Vendor chunks for large libraries
           'react-vendor': ['react', 'react-dom', 'react-router'],
-          'convex-vendor': ['convex'],
+          'convex-vendor': ['convex', '@convex-dev/auth'],
           // Large UI library chunks
           'radix-ui': [
             '@radix-ui/react-accordion',
@@ -85,10 +85,6 @@ export default defineConfig({
       'react-router',
       '@convex-dev/auth/react',
       'framer-motion',
-      // vlyPlugin() injects this import at serve time, so the dep scanner
-      // never sees it. Without it here the first page load discovers it,
-      // re-optimizes and full-reloads the preview mid-screenshot.
-      '@vly-ai/integrations',
     ],
   },
   // Performance hints

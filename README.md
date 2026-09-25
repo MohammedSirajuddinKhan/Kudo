@@ -237,6 +237,29 @@ Always ensure your larger dialogs have a scroll in its content to ensure that it
 
 Ideally, instead of using a new page, use a Dialog instead. 
 
+# Deploying to Vercel
+
+The repo ships `vercel.json` configured for this Vite SPA: framework auto-detection,
+Bun install/build, SPA rewrites (deep links like `/verify/KUDO-…` resolve to `index.html`),
+hashed-asset caching and security headers.
+
+1. Import the repository at https://vercel.com/import (or run `bunx vercel` to link
+   the project and deploy from the terminal; `bun run deploy` ships a production build).
+2. Add the environment variables below in Project → Settings → Environment Variables
+   (Production, Preview and Development all need them).
+3. Push to your production branch to trigger a deployment; every other branch gets a
+   preview URL automatically.
+
+## Environment variables for the deployed site
+
+| Variable | Purpose |
+| --- | --- |
+| `VITE_CONVEX_URL` | Convex deployment URL the frontend talks to (required) |
+| `VERCEL_TOKEN` | Optional; only needed for CI deployments via the CLI or CI automation |
+
+`GEMINI_API_KEY` is a Convex backend env var (already set on the deployment) and is
+never exposed to the frontend; nothing to add in Vercel for it.
+
 # Using the Convex backend
 
 You will be implementing the convex backend. Follow your knowledge of convex and the documentation to implement the backend.

@@ -1,11 +1,15 @@
 {
   "name": "kudo",
+  "engines": {
+    "node": "22.x"
+},
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "deploy": "vercel --prod",
     "lint": "eslint .",
     "format": "prettier --write .",
     "preview": "vite preview"

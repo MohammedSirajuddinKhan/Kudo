@@ -26,7 +26,9 @@ export default defineConfig({
         manualChunks: {
           // Vendor chunks for large libraries
           'react-vendor': ['react', 'react-dom', 'react-router'],
-          'convex-vendor': ['convex', '@convex-dev/auth'],
+          // Subpath required: @convex-dev/auth has no "." export, only
+          // subpath entries — a bare name here breaks production builds.
+          'convex-vendor': ['convex', '@convex-dev/auth/react'],
           // Large UI library chunks
           'radix-ui': [
             '@radix-ui/react-accordion',

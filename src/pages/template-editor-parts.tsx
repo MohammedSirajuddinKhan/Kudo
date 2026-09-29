@@ -1,5 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import {
+  AlignCenter,
+  AlignCenterVertical,
+  AlignEndVertical,
+  AlignLeft,
+  AlignRight,
+  AlignStartVertical,
   Copy,
   Eye,
   Grid3x3,
@@ -34,6 +40,16 @@ import { FIELD_TYPE_LABELS, FONT_OPTIONS, renderCertificate, loadQrImage } from 
 import { cn } from "@/lib/utils";
 
 type Patch = Partial<CertificateField>;
+
+const WEIGHT_OPTIONS = [
+  { value: "400", weight: 400, label: "Regular" },
+  { value: "600", weight: 600, label: "Semibold" },
+  { value: "700", weight: 700, label: "Bold" },
+] as const;
+
+const WEIGHT_LABELS: Record<string, string> = Object.fromEntries(
+  WEIGHT_OPTIONS.map((w) => [w.value, w.label]),
+);
 
 /** Toolbar + page chrome wrapper for the editor. */
 export function EditorChrome({
@@ -280,6 +296,10 @@ export function FieldInspector({
     onPatch(p);
   };
 
+  // Display size for the style sampler; spacing scales proportionally so the
+  // sample stays faithful to the real canvas output.
+  const sampleSize = Math.min(field.fontSize, 22);
+
   if (field.type === "qr") {
     return (
       <GlassPanel className="p-4">
@@ -318,6 +338,30 @@ export function FieldInspector({
             </TooltipTrigger>
             <TooltipContent>Delete</TooltipContent>
           </Tooltip>
+        </div>
+      </div>
+
+      <div className="glass-inset mb-3.5 rounded-lg p-3">
+        <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          Live preview
+        </p>
+        <div
+          className="overflow-hidden"
+          style={{
+            fontFamily: field.fontFamily,
+            fontWeight: field.fontWeight,
+            fontStyle: field.italic ? "italic" : undefined,
+            textDecoration: field.underline ? "underline" : undefined,
+            color: field.color,
+            fontSize: `${sampleSize}px`,
+            lineHeight: field.lineHeight,
+            letterSpacing: `${(field.letterSpacing * (sampleSize / Math.max(field.fontSize, 1))).toFixed(2)}px`,
+            textTransform: field.textTransform,
+            textAlign: field.align,
+            whiteSpace: field.wrap ? "normal" : "nowrap",
+          }}
+        >
+          {`Sample ${field.name || "text"}`}
         </div>
       </div>
 
@@ -361,12 +405,20 @@ export function FieldInspector({
               onValueChange={(v) => patch({ fontFamily: v })}
             >
               <SelectTrigger className="glass-input mt-1 h-8">
-                <SelectValue />
+                <SelectValue>
+                  <span
+                    className="block truncate text-[13px]"
+                    style={{ fontFamily: field.fontFamily }}
+                  >
+                    {FONT_OPTIONS.find((f) => f.value === field.fontFamily)?.label ??
+                      field.fontFamily}
+                  </span>
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {FONT_OPTIONS.map((f) => (
                   <SelectItem key={f.value} value={f.value}>
-                    {f.label}
+                    <span style={{ fontFamily: f.value }}>{f.label}</span>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -400,12 +452,26 @@ export function FieldInspector({
               onValueChange={(v) => patch({ fontWeight: Number(v) })}
             >
               <SelectTrigger className="glass-input mt-1 h-8">
-                <SelectValue />
+                <SelectValue>
+                  <span
+                    className="block truncate text-[13px]"
+                    style={{
+                      fontFamily: field.fontFamily,
+                      fontWeight: field.fontWeight,
+                    }}
+                  >
+                    {WEIGHT_LABELS[String(field.fontWeight)] ?? String(field.fontWeight)}
+                  </span>
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="400">Regular</SelectItem>
-                <SelectItem value="600">Semibold</SelectItem>
-                <SelectItem value="700">Bold</SelectItem>
+                {WEIGHT_OPTIONS.map((w) => (
+                  <SelectItem key={w.value} value={w.value}>
+                    <span style={{ fontFamily: field.fontFamily, fontWeight: w.weight }}>
+                      {w.label}
+                    </span>
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -440,9 +506,21 @@ export function FieldInspector({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="left">Left</SelectItem>
-                <SelectItem value="center">Center</SelectItem>
-                <SelectItem value="right">Right</SelectItem>
+                <SelectItem value="left">
+                  <span className="flex items-center gap-1.5">
+                    <AlignLeft className="size-3.5" /> Left
+                  </span>
+                </SelectItem>
+                <SelectItem value="center">
+                  <span className="flex items-center gap-1.5">
+                    <AlignCenter className="size-3.5" /> Center
+                  </span>
+                </SelectItem>
+                <SelectItem value="right">
+                  <span className="flex items-center gap-1.5">
+                    <AlignRight className="size-3.5" /> Right
+                  </span>
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -456,9 +534,21 @@ export function FieldInspector({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="top">Top</SelectItem>
-                <SelectItem value="middle">Middle</SelectItem>
-                <SelectItem value="bottom">Bottom</SelectItem>
+                <SelectItem value="top">
+                  <span className="flex items-center gap-1.5">
+                    <AlignStartVertical className="size-3.5" /> Top
+                  </span>
+                </SelectItem>
+                <SelectItem value="middle">
+                  <span className="flex items-center gap-1.5">
+                    <AlignCenterVertical className="size-3.5" /> Middle
+                  </span>
+                </SelectItem>
+                <SelectItem value="bottom">
+                  <span className="flex items-center gap-1.5">
+                    <AlignEndVertical className="size-3.5" /> Bottom
+                  </span>
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -472,10 +562,44 @@ export function FieldInspector({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">None</SelectItem>
-                <SelectItem value="uppercase">UPPER</SelectItem>
-                <SelectItem value="lowercase">lower</SelectItem>
-                <SelectItem value="capitalize">Title</SelectItem>
+                <SelectItem value="none">
+                  <span style={{ fontFamily: field.fontFamily, fontWeight: field.fontWeight }}>
+                    None
+                  </span>
+                </SelectItem>
+                <SelectItem value="uppercase">
+                  <span
+                    style={{
+                      fontFamily: field.fontFamily,
+                      fontWeight: field.fontWeight,
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Upper
+                  </span>
+                </SelectItem>
+                <SelectItem value="lowercase">
+                  <span
+                    style={{
+                      fontFamily: field.fontFamily,
+                      fontWeight: field.fontWeight,
+                      textTransform: "lowercase",
+                    }}
+                  >
+                    Lower
+                  </span>
+                </SelectItem>
+                <SelectItem value="capitalize">
+                  <span
+                    style={{
+                      fontFamily: field.fontFamily,
+                      fontWeight: field.fontWeight,
+                      textTransform: "capitalize",
+                    }}
+                  >
+                    Title case
+                  </span>
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -525,11 +649,23 @@ export function FieldInspector({
           </label>
           <label className="flex items-center gap-2 text-xs font-medium">
             <Switch checked={field.italic} onCheckedChange={(v) => patch({ italic: v })} />
-            Italic
+            <span
+              style={{
+                fontFamily: field.fontFamily,
+                fontStyle: field.italic ? "italic" : undefined,
+              }}
+            >
+              Italic
+            </span>
           </label>
           <label className="flex items-center gap-2 text-xs font-medium">
             <Switch checked={field.underline} onCheckedChange={(v) => patch({ underline: v })} />
-            Underline
+            <span
+              className={cn(field.underline && "underline underline-offset-2")}
+              style={{ fontFamily: field.fontFamily }}
+            >
+              Underline
+            </span>
           </label>
           <label className="flex items-center gap-2 text-xs font-medium">
             <Switch checked={field.required} onCheckedChange={(v) => patch({ required: v })} />

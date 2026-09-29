@@ -29,37 +29,13 @@ export default defineConfig({
           // Subpath required: @convex-dev/auth has no "." export, only
           // subpath entries — a bare name here breaks production builds.
           'convex-vendor': ['convex', '@convex-dev/auth/react'],
-          // Large UI library chunks
-          'radix-ui': [
-            '@radix-ui/react-accordion',
-            '@radix-ui/react-alert-dialog',
-            '@radix-ui/react-avatar',
-            '@radix-ui/react-checkbox',
-            '@radix-ui/react-collapsible',
-            '@radix-ui/react-context-menu',
-            '@radix-ui/react-dialog',
-            '@radix-ui/react-dropdown-menu',
-            '@radix-ui/react-hover-card',
-            '@radix-ui/react-label',
-            '@radix-ui/react-menubar',
-            '@radix-ui/react-navigation-menu',
-            '@radix-ui/react-popover',
-            '@radix-ui/react-progress',
-            '@radix-ui/react-radio-group',
-            '@radix-ui/react-scroll-area',
-            '@radix-ui/react-select',
-            '@radix-ui/react-separator',
-            '@radix-ui/react-slider',
-            '@radix-ui/react-switch',
-            '@radix-ui/react-tabs',
-            '@radix-ui/react-toggle',
-            '@radix-ui/react-toggle-group',
-            '@radix-ui/react-tooltip',
-          ],
           // Heavy optional libraries - separate chunks for better lazy loading
+          // Note: no manual chunks for radix-ui or recharts. Forcing packages
+          // into manual chunks made the initial load ship unused components,
+          // and hoisted tiny shared helpers into the charts chunk, turning it
+          // into a static dependency of the entry. Rollup's default splitting
+          // keeps heavy libraries with their lazy importers.
           'framer-motion': ['framer-motion'],
-          'charts': ['recharts'],
-          'forms': ['react-hook-form', '@hookform/resolvers', 'zod'],
         },
         // Optimize chunk size
         chunkFileNames: 'assets/[name]-[hash].js',

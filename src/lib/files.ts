@@ -1,5 +1,3 @@
-import * as XLSX from "xlsx";
-
 export const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
 export const MAX_FILE_SIZE_MB = 15;
 export const MAX_FILE_SIZE = MAX_FILE_SIZE_MB * 1024 * 1024;
@@ -109,7 +107,9 @@ export interface ParsedSheet {
 }
 
 /** Parse an XLSX or CSV file into columns + rows (all values as strings). */
-export function parseSpreadsheet(file: File): Promise<ParsedSheet> {
+export async function parseSpreadsheet(file: File): Promise<ParsedSheet> {
+  // xlsx is a large library; load it only when a spreadsheet is parsed.
+  const XLSX = await import("xlsx");
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onerror = () => reject(new Error("Could not read the file."));

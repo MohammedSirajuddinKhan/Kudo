@@ -1,5 +1,3 @@
-import QRCode from "qrcode";
-
 export type FieldType = "text" | "date" | "number" | "email" | "certificateId" | "qr";
 
 export interface CertificateField {
@@ -218,8 +216,13 @@ function drawTextField(
   ctx.restore();
 }
 
-/** Render a QR code to a loaded HTMLImageElement, ready for canvas drawing. */
+/**
+ * Render a QR code to a loaded HTMLImageElement, ready for canvas drawing.
+ * The qrcode library is loaded on demand — it is only needed when a
+ * certificate is actually being rendered or downloaded, not on app start.
+ */
 export async function loadQrImage(url: string, dark = "#1a1a2e"): Promise<HTMLImageElement> {
+  const { default: QRCode } = await import("qrcode");
   const dataUrl = await QRCode.toDataURL(url, {
     width: 512,
     margin: 1,

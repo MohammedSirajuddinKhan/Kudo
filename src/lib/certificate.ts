@@ -378,6 +378,21 @@ export function exportCanvasAsPng(canvas: HTMLCanvasElement, fileName: string): 
 }
 
 export async function exportCanvasAsPdf(canvas: HTMLCanvasElement, fileName: string): Promise<void> {
+  const blob = await canvasToPdfBlob(canvas);
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = fileName.endsWith(".pdf") ? fileName : `${fileName}.pdf`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+
+/**
+ * Render a canvas into a PDF Blob (A4, centered) without triggering a
+ * download. Shared by the download flow and email delivery so both paths
+ * produce the same document.
+ */
+export async function canvasToPdfBlob(canvas: HTMLCanvasElement): Promise<Blob> {
   const { default: JsPDF } = await import("jspdf");
   const orientation = canvas.width >= canvas.height ? "landscape" : "portrait";
   const pdf = new JsPDF({ orientation, unit: "pt", format: "a4" });
@@ -387,5 +402,5 @@ export async function exportCanvasAsPdf(canvas: HTMLCanvasElement, fileName: str
   const w = canvas.width * ratio;
   const h = canvas.height * ratio;
   pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", (pageW - w) / 2, (pageH - h) / 2, w, h);
-  pdf.save(fileName.endsWith(".pdf") ? fileName : `${fileName}.pdf`);
+  return pdf.output("blob");
 }

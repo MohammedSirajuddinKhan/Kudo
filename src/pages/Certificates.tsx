@@ -9,6 +9,7 @@ import {
   RotateCcw,
   Search,
   Eye,
+  Mail,
   MoreHorizontal,
 } from "lucide-react";
 import { GlassPanel, PageHeader, EmptyState, formatDateTime } from "@/components/glass";
@@ -259,6 +260,9 @@ export default function Certificates() {
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => navigate(`/certificates/${c._id}`)}>
                             <Eye className="mr-2 size-4" /> View & download
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => navigate(`/certificates/${c._id}?email=1`)}>
+                            <Mail className="mr-2 size-4" /> Email PDF…
                           </DropdownMenuItem>
                           {c.status === "active" ? (
                             <DropdownMenuItem

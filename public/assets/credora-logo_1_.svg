@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" fill="none">
+  <title>Credora Logo Mark</title>
+  <desc>Minimal dark olive green credential document and verification mark.</desc>
+
+  <!-- Document / credential frame -->
+  <path
+    d="M118 92
+       C118 72.118 134.118 56 154 56
+       H344
+       L304 136
+       H182
+       C158.804 136 140 154.804 140 178
+       V326
+       C140 344.778 152.348 361.56 170.096 368.201
+       L274 407
+       L232 447
+       L132 405
+       C99.449 391.28 78 359.112 78 323.5
+       V172
+       C78 136.654 94.076 105.009 118 92Z"
+    fill="#293B20"/>
+
+  <!-- Document text -->
+  <rect x="190" y="194" width="150" height="25" rx="12.5" fill="#293B20"/>
+  <rect x="190" y="244" width="105" height="25" rx="12.5" fill="#293B20"/>
+
+  <!-- Verification check -->
+  <path
+    d="M260 331
+       L304 369
+       L392 280
+       C407.464 264.536 432.536 264.536 448 280
+       C463.464 295.464 463.464 320.536 448 336
+       L330 454
+       C315.64 468.36 292.36 468.36 278 454
+       L218 394
+       C202.536 378.536 202.536 353.464 218 338
+       C229.716 326.284 248.284 326.284 260 331Z"
+    fill="#293B20"/>
+</svg>

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Link, useNavigate, useParams } from "react-router";
-import { useMutation, useQuery } from "convex/react";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router";
+import { useAction, useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
 import { api } from "@/convex/_generated/api";
 import {
@@ -10,13 +10,16 @@ import {
   ImageDown,
   Link2,
   Loader2,
+  Mail,
   Printer,
   QrCode,
   RotateCcw,
 } from "lucide-react";
 import { GlassPanel, PageHeader, formatDate, formatDateTime } from "@/components/glass";
+import { emailCertificatePdf, type SendCertificatePdfFn } from "@/lib/email-delivery";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   AlertDialog,
@@ -35,16 +38,49 @@ import type { CertificateField } from "@/lib/certificate";
 
 export default function CertificateDetail() {
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const cert = useQuery(api.certificates.getCertificate, { id: id as any });
   const settings = useQuery(api.templates.getSettingsQuery);
   const revoke = useMutation(api.certificates.revokeCertificate);
   const reissue = useMutation(api.certificates.reissueCertificate);
   const recordDownload = useMutation(api.certificates.recordDownload);
+  const sendPdf = useAction(api.emails.sendCertificatePdf);
 
   const [exporting, setExporting] = useState<"pdf" | "png" | null>(null);
   const [revokeOpen, setRevokeOpen] = useState(false);
   const [reason, setReason] = useState("");
+  const [emailOpen, setEmailOpen] = useState(searchParams.get("email") === "1");
+  const [emailTo, setEmailTo] = useState(cert?.recipientEmail ?? "");
+  const [emailing, setEmailing] = useState(false);
+
+  const handleEmail = async () => {
+    if (!cert) return;
+    setEmailing(true);
+    try {
+      await emailCertificatePdf(
+        sendPdf as unknown as SendCertificatePdfFn,
+        {
+          certificateId: cert.certificateId,
+          recipientName: cert.recipientName,
+          renderUrl: cert.renderUrl ?? null,
+          assetWidth: cert.assetWidth ?? 1600,
+          assetHeight: cert.assetHeight ?? 1131,
+          fields: (cert.fields ?? []) as CertificateField[],
+          values: cert.values ?? [],
+          rowId: cert._id,
+        },
+        emailTo,
+        cert.orgName,
+      );
+      toast.success(`PDF sent to ${emailTo.trim()}.`);
+      setEmailOpen(false);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not send the email.");
+    } finally {
+      setEmailing(false);
+    }
+  };
 
   const doExport = async (format: "pdf" | "png") => {
     if (!cert?.renderUrl) return;
@@ -127,6 +163,17 @@ export default function CertificateDetail() {
           <>
             <Button variant="ghost" onClick={() => navigate("/certificates")}>
               <ArrowLeft className="mr-1 size-4" /> Certificates
+            </Button>
+            <Button
+              variant="outline"
+              className="glass border-border/40"
+              onClick={() => {
+                setEmailTo(cert.recipientEmail ?? "");
+                setEmailOpen(true);
+              }}
+              disabled={!cert.renderUrl}
+            >
+              <Mail className="mr-1.5 size-4" /> Email PDF
             </Button>
             {cert.status === "active" ? (
               <Button variant="outline" className="glass border-destructive/40 text-destructive" onClick={() => setRevokeOpen(true)}>
@@ -276,6 +323,43 @@ export default function CertificateDetail() {
           </GlassPanel>
         </div>
       </div>
+
+      <AlertDialog open={emailOpen} onOpenChange={setEmailOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Email {cert.certificateId} as PDF</AlertDialogTitle>
+            <AlertDialogDescription>
+              The same PDF as the download button, attached to a branded email with the
+              recipient's verification link.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-1">
+            <Label htmlFor="email-to">Recipient email</Label>
+            <Input
+              id="email-to"
+              type="email"
+              value={emailTo}
+              onChange={(e) => setEmailTo(e.target.value)}
+              placeholder="recipient@example.com"
+              className="glass-input mt-1.5"
+              autoComplete="email"
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={emailing || !emailTo.trim()}
+              onClick={(e) => {
+                e.preventDefault();
+                void handleEmail();
+              }}
+            >
+              {emailing ? <Loader2 className="mr-2 size-4 animate-spin" /> : <Mail className="mr-2 size-4" />}
+              Send PDF
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AlertDialog open={revokeOpen} onOpenChange={setRevokeOpen}>
         <AlertDialogContent>

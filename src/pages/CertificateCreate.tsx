@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
-import { useMutation, useQuery } from "convex/react";
+import { useAction, useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
 import { api } from "@/convex/_generated/api";
 import {
@@ -8,10 +8,12 @@ import {
   CheckCircle2,
   Link2,
   Loader2,
+  Mail,
   Send,
   Sparkles,
 } from "lucide-react";
 import { GlassPanel, PageHeader, EmptyState, formatDate } from "@/components/glass";
+import { emailCertificatePdf, type SendCertificatePdfFn } from "@/lib/email-delivery";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,6 +37,7 @@ export default function CertificateCreate() {
   const templates = useQuery(api.templates.listTemplates);
   const settings = useQuery(api.templates.getSettingsQuery);
   const generate = useMutation(api.certificates.generateCertificate);
+  const sendPdf = useAction(api.emails.sendCertificatePdf);
 
   const [recipientName, setRecipientName] = useState("");
   const [recipientEmail, setRecipientEmail] = useState("");
@@ -43,6 +46,7 @@ export default function CertificateCreate() {
   const [values, setValues] = useState<Record<string, string>>({});
   const [generating, setGenerating] = useState(false);
   const [done, setDone] = useState<{ id: string; certificateId: string } | null>(null);
+  const [emailing, setEmailing] = useState(false);
 
   // Default to the first ready template via lazy init (no effect needed).
   const [templateId, setTemplateId] = useState<string | null>(preselect ?? null);
@@ -94,6 +98,37 @@ export default function CertificateCreate() {
     }
   };
 
+  /** Fire-and-forget PDF email from the success panel (best effort). */
+  const handleEmailFromCreate = async () => {
+    if (!done || !template) return;
+    setEmailing(true);
+    try {
+      await emailCertificatePdf(
+        sendPdf as unknown as SendCertificatePdfFn,
+        {
+          certificateId: done.certificateId,
+          recipientName,
+          renderUrl: template.renderUrl,
+          assetWidth: template.assetWidth,
+          assetHeight: template.assetHeight,
+          fields: (template.fields ?? []) as CertificateField[],
+          values: fields.map((f) => ({
+            key: f.id,
+            label: f.name,
+            value: (values[f.id] ?? "").trim(),
+          })),
+        },
+        recipientEmail,
+        settings?.organizationName ?? "",
+      );
+      toast.success(`PDF sent to ${recipientEmail.trim()}.`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not send the email.");
+    } finally {
+      setEmailing(false);
+    }
+  };
+
   if (templates !== undefined && templates.length === 0) {
     return (
       <div className="mx-auto max-w-xl">
@@ -134,6 +169,15 @@ export default function CertificateCreate() {
           <p className="mt-2 text-xs text-muted-foreground">Scan to verify publicly</p>
 
           <div className="mt-6 flex flex-col justify-center gap-2 sm:flex-row">
+            <Button
+              variant="outline"
+              className="glass border-border/40"
+              disabled={emailing}
+              onClick={() => void handleEmailFromCreate()}
+            >
+              {emailing ? <Loader2 className="mr-1.5 size-4 animate-spin" /> : <Mail className="mr-1.5 size-4" />}
+              {emailing ? "Sending…" : `Email PDF${recipientEmail.trim() ? ` to ${recipientEmail.trim()}` : ""}`}
+            </Button>
             <Button
               variant="outline"
               className="glass border-border/40"

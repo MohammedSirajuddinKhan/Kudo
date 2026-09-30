@@ -1,5 +1,7 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
+import { toast } from "sonner";
 import { api } from "@/convex/_generated/api";
 import {
   Activity,
@@ -10,6 +12,7 @@ import {
   Plus,
   QrCode,
   ScrollText,
+  ShieldBan,
   Sparkles,
   BarChart3,
 } from "lucide-react";
@@ -22,6 +25,33 @@ import {
 } from "@/components/glass";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const QUICK_ACTIONS = [
   { to: "/templates/new", label: "Create Template", icon: LayoutTemplate, desc: "Upload a design & map fields" },
@@ -56,8 +86,12 @@ function actionLabel(action: string): string {
 
 export default function Dashboard() {
   const stats = useQuery(api.certificates.getStats);
+
   const activity = useQuery(api.certificates.getRecentActivity);
   const recentCerts = useQuery(api.certificates.listCertificates, { limit: 6 });
+  const revokeCounts = useQuery(api.certificates.getRevokeCounts);
+  const totalActive = revokeCounts?.totalActive ?? 0;
+  const byTemplate = revokeCounts?.byTemplate ?? [];
 
   const cards = [
     {
@@ -86,11 +120,111 @@ export default function Dashboard() {
     },
   ];
 
+  const revoke = useMutation(api.certificates.revokeCertificate);
+  const revokeAll = useMutation(api.certificates.revokeAllCertificates);
+  const revokeByTemplate = useMutation(api.certificates.revokeCertificatesByTemplate);
+  const [revokeOpen, setRevokeOpen] = useState(false);
+  const [revokeMode, setRevokeMode] = useState<"all" | "template" | "single">("all");
+  const [revokeTemplateId, setRevokeTemplateId] = useState<string>("");
+  const [revokeCertId, setRevokeCertId] = useState<string>("all");
+  const [revokeReason, setRevokeReason] = useState("Reason supplied via dashboard bulk revoke");
+  const [revokeBusy, setRevokeBusy] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
+  // Load the certificate list only while the single-revoke dialog is open.
+  const activeCerts = useQuery(
+    api.certificates.listCertificates,
+    confirmOpen && revokeMode === "single"
+      ? { status: "active" as const, limit: 500 }
+      : "skip",
+  );
+  // Keep the picker on a real certificate (pre-select the newest on open).
+  useEffect(() => {
+    if (activeCerts && activeCerts.length > 0 && !activeCerts.some((c) => c._id === revokeCertId)) {
+      setRevokeCertId(activeCerts[0]._id);
+    }
+  }, [activeCerts, revokeCertId]);
+
+  const handleRevoke = async () => {
+    setRevokeBusy(true);
+    try {
+      if (revokeMode === "all") {
+        const r = await revokeAll({ reason: revokeReason.trim() });
+        toast.success(`Revoked ${r.revoked} certificate${r.revoked === 1 ? "" : "s"}.`);
+      } else if (revokeMode === "template") {
+        const r = await revokeByTemplate({
+          templateId: revokeTemplateId as any,
+          reason: revokeReason.trim(),
+        });
+        toast.success(`Revoked ${r.revoked} certificate${r.revoked === 1 ? "" : "s"} from that template.`);
+      } else {
+        if (!revokeCertId || revokeCertId === "all") return;
+        await revoke({ id: revokeCertId as any, reason: revokeReason.trim() });
+        toast.success("Certificate revoked.");
+      }
+      setRevokeOpen(false);
+      setConfirmOpen(false);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Could not revoke the certificates.");
+    } finally {
+      setRevokeBusy(false);
+    }
+  };
+
   return (
     <div>
       <PageHeader
         title="Dashboard"
         description="Overview of your certificate issuing activity."
+        actions={
+          <DropdownMenu open={revokeOpen} onOpenChange={setRevokeOpen}>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                className="glass border-destructive/40 text-destructive"
+                disabled={totalActive === 0}
+                aria-label="Revoke certificates"
+              >
+                <ShieldBan className="mr-1.5 size-4" />
+                Revoke certificates
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-64">
+              <DropdownMenuLabel>Revoke certificates</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                disabled={totalActive === 0}
+                onClick={() => {
+                  setRevokeMode("all");
+                  setConfirmOpen(true);
+                }}
+              >
+                <ShieldBan className="mr-2 size-4 text-destructive" />
+                Revoke ALL ({totalActive} active)
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                disabled={byTemplate.length === 0}
+                onClick={() => {
+                  setRevokeMode("template");
+                  setConfirmOpen(true);
+                }}
+              >
+                <LayoutTemplate className="mr-2 size-4" />
+                Revoke by template…
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                disabled={totalActive === 0}
+                onClick={() => {
+                  setRevokeMode("single");
+                  setConfirmOpen(true);
+                }}
+              >
+                <FileBadge className="mr-2 size-4" />
+                Revoke a single certificate…
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        }
       />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -200,6 +334,143 @@ export default function Dashboard() {
           )}
         </GlassPanel>
       </div>
+
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent>
+          {revokeMode === "single" ? (
+            <>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Revoke a certificate</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Records are preserved and public verification will show CERTIFICATE REVOKED
+                  with your reason. This cannot be undone without reissuing.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <div className="space-y-3 py-1">
+                <div>
+                  <Label className="mb-1 block text-[11px] text-muted-foreground">Certificate</Label>
+                  <Select value={revokeCertId} onValueChange={setRevokeCertId} disabled={!activeCerts || activeCerts.length === 0}>
+                    <SelectTrigger className="glass-input w-full">
+                      <SelectValue placeholder="Choose a certificate" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-72">
+                      {(activeCerts ?? []).map((c) => (
+                        <SelectItem key={c._id} value={c._id}>
+                          {c.certificateId} — {c.recipientName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="mb-1 block text-[11px] text-muted-foreground">Reason (shown publicly)</Label>
+                  <Input
+                    value={revokeReason}
+                    onChange={(e) => setRevokeReason(e.target.value)}
+                    placeholder="e.g. Issued in error"
+                    className="glass-input"
+                  />
+                </div>
+              </div>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  className="bg-destructive text-white hover:bg-destructive/90"
+                  disabled={revokeBusy || !revokeCertId || revokeCertId === "all" || !revokeReason.trim()}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    void handleRevoke();
+                  }}
+                >
+                  Revoke certificate
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </>
+          ) : revokeMode === "template" ? (
+            <>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Revoke certificates by template</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Every active certificate from the selected template is revoked. Records are
+                  preserved; public verification shows CERTIFICATE REVOKED.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <div className="space-y-3 py-1">
+                <div>
+                  <Label className="mb-1 block text-[11px] text-muted-foreground">Template</Label>
+                  <Select value={revokeTemplateId} onValueChange={setRevokeTemplateId} disabled={byTemplate.length === 0}>
+                    <SelectTrigger className="glass-input w-full">
+                      <SelectValue placeholder="Choose a template" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-72">
+                      {byTemplate.map((t) => (
+                        <SelectItem key={t.id} value={t.id}>
+                          {t.name} ({t.active} active)
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="mb-1 block text-[11px] text-muted-foreground">Reason (shown publicly)</Label>
+                  <Input
+                    value={revokeReason}
+                    onChange={(e) => setRevokeReason(e.target.value)}
+                    placeholder="e.g. Course retracted"
+                    className="glass-input"
+                  />
+                </div>
+              </div>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  className="bg-destructive text-white hover:bg-destructive/90"
+                  disabled={revokeBusy || !revokeTemplateId || !revokeReason.trim()}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    void handleRevoke();
+                  }}
+                >
+                  Revoke all from template
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </>
+          ) : (
+            <>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Revoke ALL active certificates?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This revokes every currently active certificate across all templates.
+                  Records are preserved and public verification will show CERTIFICATE
+                  REVOKED with your reason. This cannot be undone without reissuing each one.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <div>
+                <Label className="mb-1 block text-[11px] text-muted-foreground">Reason (shown publicly)</Label>
+                <Input
+                  value={revokeReason}
+                  onChange={(e) => setRevokeReason(e.target.value)}
+                  placeholder="e.g. Credentials re-issued under a new program"
+                  className="glass-input"
+                />
+              </div>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  className="bg-destructive text-white hover:bg-destructive/90"
+                  disabled={revokeBusy || !revokeReason.trim()}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    void handleRevoke();
+                  }}
+                >
+                  Revoke all {totalActive} certificates
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </>
+          )}
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

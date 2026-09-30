@@ -258,6 +258,94 @@ export const revokeCertificate = mutation({
   },
 });
 
+/**
+ * Revoke every active certificate in one transaction (Dashboard bulk action).
+ * A single summary audit entry records the operation so the append-only log
+ * stays readable; each certificate still records why + when it was revoked.
+ */
+export const revokeAllCertificates = mutation({
+  args: { reason: v.string() },
+  handler: async (ctx, args) => {
+    const user = await requireUser(ctx);
+    const reason = args.reason.trim();
+    if (!reason) throw new Error("A reason is required to revoke certificates.");
+    const active = (await ctx.db.query("certificates").collect()).filter(
+      (c) => c.status === "active",
+    );
+    const now = Date.now();
+    for (const cert of active) {
+      await ctx.db.patch(cert._id, {
+        status: "revoked",
+        revokedReason: reason,
+        revokedAt: now,
+      });
+    }
+    await logAudit(ctx, {
+      action: "certificate.bulk_revoked",
+      actorId: user._id,
+      actorEmail: user.email,
+      resourceType: "certificate",
+      metadata: { scope: "all", count: active.length, reason },
+    });
+    return { revoked: active.length };
+  },
+});
+
+/** Revoke all active certificates issued from one template. */
+export const revokeCertificatesByTemplate = mutation({
+  args: { templateId: v.id("templates"), reason: v.string() },
+  handler: async (ctx, args) => {
+    const user = await requireUser(ctx);
+    const reason = args.reason.trim();
+    if (!reason) throw new Error("A reason is required to revoke certificates.");
+    const template = await ctx.db.get(args.templateId);
+    if (!template) throw new Error("Template not found.");
+    const active = (await ctx.db.query("certificates").collect()).filter(
+      (c) => c.templateId === args.templateId && c.status === "active",
+    );
+    const now = Date.now();
+    for (const cert of active) {
+      await ctx.db.patch(cert._id, {
+        status: "revoked",
+        revokedReason: reason,
+        revokedAt: now,
+      });
+    }
+    await logAudit(ctx, {
+      action: "certificate.bulk_revoked",
+      actorId: user._id,
+      actorEmail: user.email,
+      resourceType: "certificate",
+      metadata: { scope: "template", count: active.length, reason, templateName: template.name },
+    });
+    return { revoked: active.length };
+  },
+});
+
+/** Active-certificate counts (total + per template) for the revoke menu. */
+export const getRevokeCounts = query({
+  args: {},
+  handler: async (ctx) => {
+    await requireUser(ctx);
+    const certs = await ctx.db.query("certificates").collect();
+    const templates = await ctx.db.query("templates").collect();
+    const byTemplate = templates
+      .filter((t) => t.status !== "archived")
+      .map((t) => ({
+        id: t._id,
+        name: t.name,
+        category: t.category,
+        active: certs.filter((c) => c.templateId === t._id && c.status === "active").length,
+      }))
+      .filter((t) => t.active > 0)
+      .sort((a, b) => b.active - a.active);
+    return {
+      totalActive: certs.filter((c) => c.status === "active").length,
+      byTemplate,
+    };
+  },
+});
+
 export const reissueCertificate = mutation({
   args: { id: v.id("certificates") },
   handler: async (ctx, args) => {

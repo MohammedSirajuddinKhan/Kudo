@@ -13,28 +13,20 @@ export function CredoraLogo({ size = 32, withText = true, className }: { size?: 
         className="glass inline-flex items-center justify-center rounded-xl text-primary"
         style={{ width: size, height: size }}
       >
-        <svg width={size * 0.55} height={size * 0.55} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path
-            d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M22 10v6"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
+        <svg
+          width={size * 0.58}
+          height={size * 0.58}
+          viewBox="0 0 512 512"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          {/* Document / credential frame */}
+          <path d="M118 92 C118 72.118 134.118 56 154 56 H344 L304 136 H182 C158.804 136 140 154.804 140 178 V326 C140 344.778 152.348 361.56 170.096 368.201 L274 407 L232 447 L132 405 C99.449 391.28 78 359.112 78 323.5 V172 C78 136.654 94.076 105.009 118 92Z" />
+          {/* Document text */}
+          <rect x="190" y="194" width="150" height="25" rx="12.5" />
+          <rect x="190" y="244" width="105" height="25" rx="12.5" />
+          {/* Verification check */}
+          <path d="M260 331 L304 369 L392 280 C407.464 264.536 432.536 264.536 448 280 C463.464 295.464 463.464 320.536 448 336 L330 454 C315.64 468.36 292.36 468.36 278 454 L218 394 C202.536 378.536 202.536 353.464 218 338 C229.716 326.284 248.284 326.284 260 331Z" />
         </svg>
       </span>
       {withText && (

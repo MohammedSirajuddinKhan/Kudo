@@ -10,6 +10,7 @@ import {
   FileDown,
   QrCode,
   History,
+  Heart,
   ScrollText,
   BarChart3,
   ShieldCheck,
@@ -267,7 +268,12 @@ export default function Landing() {
       <footer className="px-4 pb-10">
         <GlassPanel className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-5 text-sm text-muted-foreground sm:flex-row">
           <CredoraLogo size={26} />
-          <p>Create. Issue. Verify.</p>
+          <p className="flex items-center gap-1.5">
+            Made with <Heart className="size-3.5 fill-destructive text-destructive" aria-hidden="true" />
+            <span>
+              by <span className="font-medium text-foreground">Mohammed Sirajuddin Khan</span>
+            </span>
+          </p>
           <div className="flex items-center gap-4">
             <Link to="/verify" className="transition-colors hover:text-foreground">Verify</Link>
             <Link to="/auth" className="transition-colors hover:text-foreground">Sign in</Link>

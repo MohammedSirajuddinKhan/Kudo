@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
@@ -46,11 +46,22 @@ export default function CertificateDetail() {
   const reissue = useMutation(api.certificates.reissueCertificate);
   const recordDownload = useMutation(api.certificates.recordDownload);
   const sendPdf = useAction(api.emails.sendCertificatePdf);
+  const sendStatus = useAction(api.emails.emailDeliveryStatus);
 
   const [exporting, setExporting] = useState<"pdf" | "png" | null>(null);
   const [revokeOpen, setRevokeOpen] = useState(false);
   const [reason, setReason] = useState("");
   const [emailOpen, setEmailOpen] = useState(searchParams.get("email") === "1");
+  const [emailStatus, setEmailStatus] = useState<{
+    configured: boolean;
+    customSender: boolean;
+  } | null>(null);
+  useEffect(() => {
+    if (!emailOpen) return;
+    void sendStatus()
+      .then(setEmailStatus)
+      .catch(() => setEmailStatus(null));
+  }, [emailOpen, sendStatus]);
   const [emailTo, setEmailTo] = useState(cert?.recipientEmail ?? "");
   const [emailing, setEmailing] = useState(false);
 
@@ -333,6 +344,13 @@ export default function CertificateDetail() {
               recipient's verification link.
             </AlertDialogDescription>
           </AlertDialogHeader>
+          {emailStatus && !emailStatus.customSender && (
+            <div className="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-xs leading-relaxed text-foreground">
+              <span className="font-semibold">Sandbox mode:</span> Resend can only deliver to your
+              own account address until a domain is verified. Verify yours at resend.com/domains,
+              then set the <span className="font-mono">EMAIL_FROM</span> key to unlock any recipient.
+            </div>
+          )}
           <div className="py-1">
             <Label htmlFor="email-to">Recipient email</Label>
             <Input

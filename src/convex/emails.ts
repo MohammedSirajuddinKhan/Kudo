@@ -99,3 +99,19 @@ export const sendCertificatePdf = action({
     return { ok: true as const };
   },
 });
+
+/**
+ * Sandbox/sender status for the email dialogs (no secrets returned): lets the
+ * UI warn before sending that only the account-owner address can receive mail
+ * until a custom sender domain is configured.
+ */
+export const emailDeliveryStatus = action({
+  args: {},
+  handler: async (ctx) => {
+    await requireUserId(ctx);
+    return {
+      configured: !!process.env.RESEND_API_KEY,
+      customSender: !!process.env.EMAIL_FROM,
+    };
+  },
+});

@@ -105,9 +105,9 @@ export default function Dashboard() {
         </h2>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {QUICK_ACTIONS.map((a) => (
-            <Link key={a.to} to={a.to}>
+            <Link key={a.to} to={a.to} className="group">
               <GlassPanel hover className="flex items-center gap-3 p-4">
-                <div className="glass-inset flex size-10 shrink-0 items-center justify-center rounded-xl text-primary">
+                <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/12 text-primary ring-1 ring-primary/15 transition-colors group-hover:bg-primary/18">
                   <a.icon className="size-5" />
                 </div>
                 <div className="min-w-0">
@@ -123,7 +123,7 @@ export default function Dashboard() {
       <div className="mt-8 grid gap-5 xl:grid-cols-5">
         <GlassPanel className="p-5 xl:col-span-3">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-semibold">Recent certificates</h2>
+            <h2 className="font-serif text-lg font-semibold">Recent certificates</h2>
             <Button asChild variant="ghost" size="sm">
               <Link to="/certificates">
                 View all
@@ -172,8 +172,8 @@ export default function Dashboard() {
 
         <GlassPanel className="p-5 xl:col-span-2">
           <div className="mb-4 flex items-center gap-2">
-            <ScrollText className="size-4 text-primary" />
-            <h2 className="font-semibold">Recent activity</h2>
+            <ScrollText className="size-4 text-chart-2" />
+            <h2 className="font-serif text-lg font-semibold">Recent activity</h2>
           </div>
           {activity === undefined ? (
             <div className="space-y-2">

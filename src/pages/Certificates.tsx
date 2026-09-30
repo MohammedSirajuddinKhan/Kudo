@@ -208,18 +208,22 @@ export default function Certificates() {
           <div className="max-h-[600px] overflow-auto">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Certificate ID</TableHead>
-                  <TableHead>Recipient</TableHead>
-                  <TableHead>Template</TableHead>
-                  <TableHead>Issued</TableHead>
-                  <TableHead>Status</TableHead>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">Certificate ID</TableHead>
+                  <TableHead className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">Recipient</TableHead>
+                  <TableHead className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">Template</TableHead>
+                  <TableHead className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">Issued</TableHead>
+                  <TableHead className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">Status</TableHead>
                   <TableHead className="w-12" aria-label="Actions" />
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {certs.map((c) => (
-                  <TableRow key={c._id} className="cursor-pointer" onClick={() => navigate(`/certificates/${c._id}`)}>
+                  <TableRow
+                    key={c._id}
+                    className="cursor-pointer"
+                    onClick={() => navigate(`/certificates/${c._id}`)}
+                  >
                     <TableCell className="font-mono text-xs font-medium">{c.certificateId}</TableCell>
                     <TableCell className="text-sm font-medium">{c.recipientName}</TableCell>
                     <TableCell className="text-sm">{c.templateName}</TableCell>
@@ -228,7 +232,14 @@ export default function Certificates() {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1.5">
-                        <Badge variant={c.status === "active" ? "secondary" : "destructive"}>
+                        <Badge
+                          variant={c.status === "active" ? "secondary" : "destructive"}
+                          className={
+                            c.status === "active"
+                              ? "bg-success/12 text-success ring-1 ring-success/25 ring-inset"
+                              : undefined
+                          }
+                        >
                           {c.status === "active" ? "Active" : "Revoked"}
                         </Badge>
                         {c.verifyCount > 0 && (

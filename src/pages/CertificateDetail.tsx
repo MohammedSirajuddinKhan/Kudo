@@ -160,10 +160,12 @@ export default function CertificateDetail() {
       <div className="grid gap-5 xl:grid-cols-[1fr_320px]">
         <GlassPanel className="p-4">
           {cert.renderUrl ? (
-            <CertificatePreview
-              cert={cert}
-              showQr={settings?.showQrOnCertificates ?? true}
-            />
+            <div className="overflow-hidden rounded-xl border-t-2 border-t-chart-2/50">
+              <CertificatePreview
+                cert={cert}
+                showQr={settings?.showQrOnCertificates ?? true}
+              />
+            </div>
           ) : (
             <div className="flex h-64 items-center justify-center text-sm text-muted-foreground">
               Template asset unavailable.
@@ -240,7 +242,7 @@ export default function CertificateDetail() {
 
           <GlassPanel className="p-5">
             <h2 className="mb-3 font-semibold">Share & verify</h2>
-            <div className="mx-auto max-w-[180px] rounded-xl bg-white p-2.5 shadow-sm">
+            <div className="mx-auto max-w-[180px] rounded-xl bg-white p-2.5 shadow-sm dark:bg-white">
               <QrCodeCanvas url={verifyUrl} className="size-full" />
             </div>
             <div className="mt-3 flex flex-col gap-2">

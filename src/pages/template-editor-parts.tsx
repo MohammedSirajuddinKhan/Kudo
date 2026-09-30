@@ -233,17 +233,38 @@ export function PreviewCanvas({
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const qrRef = useRef<HTMLImageElement | null>(null);
+  const rafRef = useRef<number | null>(null);
+  const drawingRef = useRef(false);
+  const pendingRef = useRef(false);
 
   useEffect(() => {
-    let cancelled = false;
-    const draw = async () => {
-      if (!canvasRef.current || !renderUrl) return;
+    // Photoshop-style redraw loop: coalesce every input change into at most
+    // one canvas render per animation frame, and never let two renders of the
+    // same canvas overlap. A change that lands mid-render triggers exactly one
+    // follow-up render with the latest values.
+    const schedule = () => {
+      if (rafRef.current !== null) return;
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = null;
+        void runDraw();
+      });
+    };
+
+    const runDraw = async () => {
+      if (drawingRef.current) {
+        pendingRef.current = true;
+        return;
+      }
+      drawingRef.current = true;
       try {
+        const canvas = canvasRef.current;
+        if (!canvas || !renderUrl) return;
         if (showQr && !qrRef.current) {
-          qrRef.current = await loadQrImage(verifyUrl);
+          qrRef.current = await loadQrImage(
+            verifyUrl || `${window.location.origin}/verify/${certificateId}`,
+          );
         }
-        if (cancelled) return;
-        await renderCertificate(canvasRef.current, {
+        await renderCertificate(canvas, {
           imageUrl: renderUrl,
           assetWidth,
           assetHeight,
@@ -258,11 +279,21 @@ export function PreviewCanvas({
         });
       } catch {
         // Render failures in preview are non-fatal; the canvas stays blank.
+      } finally {
+        drawingRef.current = false;
+        if (pendingRef.current) {
+          pendingRef.current = false;
+          schedule();
+        }
       }
     };
-    void draw();
+
+    schedule();
     return () => {
-      cancelled = true;
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
     };
   }, [renderUrl, assetWidth, assetHeight, fields, values, certificateId, verifyUrl, showQr]);
 

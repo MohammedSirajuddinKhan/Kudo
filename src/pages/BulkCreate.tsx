@@ -262,7 +262,7 @@ export default function BulkCreate() {
       ) : stage === "setup" || stage === "mapping" ? (
         <div className="grid gap-5 lg:grid-cols-2">
           <GlassPanel strong className="p-5">
-            <h2 className="mb-4 font-semibold">1 · Choose a template & import data</h2>
+            <h2 className="mb-4 font-serif text-lg font-semibold">1 · Choose a template & import data</h2>
             <div className="space-y-4">
               <div>
                 <Label htmlFor="bulk-template">Template</Label>
@@ -290,8 +290,8 @@ export default function BulkCreate() {
 
               <label
                 className={cn(
-                  "glass-inset flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-6 py-8 text-center transition-all",
-                  "border-border/60 hover:border-primary/40",
+                  "flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-primary/30 bg-primary/8 px-6 py-8 text-center transition-all",
+                  "hover:border-primary/50 hover:bg-primary/12",
                 )}
               >
                 <FileSpreadsheet className="mb-2 size-8 text-primary" />
@@ -312,7 +312,7 @@ export default function BulkCreate() {
           </GlassPanel>
 
           <GlassPanel strong className="p-5">
-            <h2 className="mb-4 font-semibold">2 · Map columns to fields</h2>
+            <h2 className="mb-4 font-serif text-lg font-semibold">2 · Map columns to fields</h2>
             {!template ? (
               <p className="py-8 text-center text-sm text-muted-foreground">
                 Choose a template to see its fields.
@@ -367,7 +367,7 @@ export default function BulkCreate() {
         <GlassPanel strong className="p-5">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h2 className="font-semibold">3 · Validation results</h2>
+              <h2 className="font-serif text-lg font-semibold">3 · Validation results</h2>
               <p className="mt-0.5 text-sm text-muted-foreground">
                 <span className="font-medium text-success">{validCount} valid rows</span>
                 {errorCount > 0 && (

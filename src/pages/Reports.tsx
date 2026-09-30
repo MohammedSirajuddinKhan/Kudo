@@ -90,7 +90,7 @@ export default function Reports() {
           </Suspense>
 
           <GlassPanel className="mt-5 p-5">
-            <h2 className="mb-4 font-semibold">Top templates</h2>
+            <h2 className="mb-4 font-serif text-lg font-semibold">Top templates</h2>
             {reports.byTemplate.length === 0 ? (
               <p className="py-6 text-center text-sm text-muted-foreground">No data yet.</p>
             ) : (
@@ -103,9 +103,9 @@ export default function Reports() {
                         <span className="truncate font-medium">{t.name}</span>
                         <span className="text-muted-foreground">{t.count}</span>
                       </div>
-                      <div className="h-2 overflow-hidden rounded-full bg-white/50 dark:bg-white/10">
+                      <div className="h-2 overflow-hidden rounded-full bg-primary/10">
                         <div
-                          className="h-full rounded-full bg-primary/70"
+                          className="h-full rounded-full bg-gradient-to-r from-primary/80 to-chart-2/90"
                           style={{ width: `${Math.max(4, (t.count / max) * 100)}%` }}
                         />
                       </div>

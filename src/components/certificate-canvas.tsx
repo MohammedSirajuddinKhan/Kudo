@@ -23,12 +23,33 @@ export function PreviewCanvasLight({
   qrImage?: HTMLImageElement | null;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const rafRef = useRef<number | null>(null);
+  const drawingRef = useRef(false);
+  const pendingRef = useRef(false);
 
   useEffect(() => {
-    const draw = async () => {
-      if (!canvasRef.current) return;
+    // Coalesce form-typing into at most one render per animation frame; a
+    // change landing mid-render schedules exactly one follow-up render. The
+    // base image comes from the module-level cache, so redraws are pure
+    // canvas compositing.
+    const schedule = () => {
+      if (rafRef.current !== null) return;
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = null;
+        void runDraw();
+      });
+    };
+
+    const runDraw = async () => {
+      if (drawingRef.current) {
+        pendingRef.current = true;
+        return;
+      }
+      drawingRef.current = true;
       try {
-        await renderCertificate(canvasRef.current, {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        await renderCertificate(canvas, {
           imageUrl: renderUrl ?? "",
           assetWidth,
           assetHeight,
@@ -43,9 +64,22 @@ export function PreviewCanvasLight({
         });
       } catch {
         // Non-fatal: leave the canvas blank on transient image load issues.
+      } finally {
+        drawingRef.current = false;
+        if (pendingRef.current) {
+          pendingRef.current = false;
+          schedule();
+        }
       }
     };
-    void draw();
+
+    schedule();
+    return () => {
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+    };
   }, [renderUrl, assetWidth, assetHeight, fields, values, certificateId, showQr, qrImage]);
 
   return (

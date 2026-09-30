@@ -83,11 +83,11 @@ export default function Settings() {
         <div className="space-y-5">
           <GlassPanel className="p-6">
             <div className="mb-5 flex items-center gap-3">
-              <div className="glass-inset flex size-10 items-center justify-center rounded-xl text-primary">
+              <div className="flex size-10 items-center justify-center rounded-xl bg-primary/12 text-primary ring-1 ring-primary/15">
                 <Building2 className="size-5" />
               </div>
               <div>
-                <h2 className="font-semibold">Organization</h2>
+                <h2 className="font-serif text-lg font-semibold">Organization</h2>
                 <p className="text-xs text-muted-foreground">
                   Shown as the issuing institution on certificates and public verification pages.
                 </p>
@@ -112,11 +112,11 @@ export default function Settings() {
 
           <GlassPanel className="p-6">
             <div className="mb-5 flex items-center gap-3">
-              <div className="glass-inset flex size-10 items-center justify-center rounded-xl text-primary">
+              <div className="flex size-10 items-center justify-center rounded-xl bg-primary/12 text-primary ring-1 ring-primary/15">
                 <Hash className="size-5" />
               </div>
               <div>
-                <h2 className="font-semibold">Certificate IDs</h2>
+                <h2 className="font-serif text-lg font-semibold">Certificate IDs</h2>
                 <p className="text-xs text-muted-foreground">
                   Every certificate gets a unique, verifiable ID in this format.
                 </p>
@@ -160,11 +160,11 @@ export default function Settings() {
           <GlassPanel className="p-6">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-start gap-3">
-                <div className="glass-inset flex size-10 shrink-0 items-center justify-center rounded-xl text-primary">
+                <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/12 text-primary ring-1 ring-primary/15">
                   <QrCode className="size-5" />
                 </div>
                 <div>
-                  <h2 className="font-semibold">QR codes on new certificates</h2>
+                  <h2 className="font-serif text-lg font-semibold">QR codes on new certificates</h2>
                   <p className="mt-0.5 text-xs text-muted-foreground">
                     Add a scannable verification QR at the QR field position when generating.
                   </p>

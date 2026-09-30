@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/input-otp";
 import { useAuth } from "@/hooks/use-auth";
 import { GlassPanel, KudoLogo, ThemeToggle } from "@/components/glass";
-import { ArrowRight, Loader2, Mail, ShieldCheck } from "lucide-react";
+import { ArrowRight, GraduationCap, Loader2, Mail } from "lucide-react";
 import { Suspense, useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
 
@@ -104,11 +104,11 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
           <ThemeToggle />
         </div>
 
-        <GlassPanel strong className="p-7">
+        <GlassPanel strong className="border-t-2 border-t-primary/40 p-7">
           {step === "signIn" ? (
             <>
               <div className="mb-6">
-                <h1 className="text-xl font-bold tracking-tight">Sign in to Kudo</h1>
+                <h1 className="font-serif text-xl font-bold tracking-tight">Sign in to Kudo</h1>
                 <p className="mt-1.5 text-sm text-muted-foreground">
                   Administrators sign in with email — we'll send a one-time code.
                 </p>
@@ -166,7 +166,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
           ) : (
             <>
               <div className="mb-6 text-center">
-                <h1 className="text-xl font-bold tracking-tight">Check your email</h1>
+                <h1 className="font-serif text-xl font-bold tracking-tight">Check your email</h1>
                 <p className="mt-1.5 text-sm text-muted-foreground">
                   We've sent a 6-digit code to <span className="font-medium text-foreground">{step.email}</span>
                 </p>
@@ -228,7 +228,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
         </GlassPanel>
 
         <p className="mt-5 flex items-center justify-center gap-1.5 text-center text-xs text-muted-foreground">
-          <ShieldCheck className="size-3.5" />
+          <GraduationCap className="size-3.5" />
           Secured session · passwords are never stored in the app
         </p>
       </div>

@@ -3,7 +3,9 @@ import { Link, NavLink, useNavigate } from "react-router";
 import {
   BarChart3,
   Bell,
+  BookOpenCheck,
   FileBadge,
+  GraduationCap,
   Layers,
   LayoutDashboard,
   LogOut,
@@ -81,6 +83,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
   const navLinks = (
     <nav className="flex flex-col gap-1" aria-label="Dashboard">
+      <p className="px-3 pt-1 pb-1.5 text-[10px] font-bold tracking-[0.14em] text-muted-foreground/70 uppercase">
+        Main menu
+      </p>
       {nav.map((item) => (
         <NavLink
           key={item.to}
@@ -91,12 +96,12 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             cn(
               "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all",
               isActive
-                ? "glass-strong text-foreground shadow-sm"
-                : "text-muted-foreground hover:bg-white/40 hover:text-foreground dark:hover:bg-white/10",
+                ? "bg-primary/12 text-foreground ring-1 ring-primary/20 ring-inset"
+                : "text-muted-foreground hover:bg-primary/8 hover:text-foreground",
             )
           }
         >
-          <item.icon className="size-4.5 shrink-0" />
+          <item.icon className="size-4.5 shrink-0 transition-colors" />
           {item.label}
         </NavLink>
       ))}
@@ -120,10 +125,14 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             </Link>
             {navLinks}
             <div className="mt-auto">
-              <div className="glass-inset rounded-xl p-3 text-xs leading-relaxed text-muted-foreground">
-                <p className="font-medium text-foreground">Recipients need no account</p>
-                <p className="mt-1">
-                  Share a certificate link or QR — anyone can verify it on the public page.
+              <div className="rounded-xl bg-primary/10 p-3 ring-1 ring-primary/15 ring-inset">
+                <p className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                  <GraduationCap className="size-3.5 text-primary" />
+                  Built for institutions
+                </p>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                  Recipients need no account — share a certificate link or QR, and anyone can
+                  verify it on the public page.
                 </p>
               </div>
             </div>
@@ -156,6 +165,12 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                 className="glass-input border-0 pl-9 shadow-none focus-visible:ring-1"
               />
             </form>
+            <div className="ml-1 hidden items-center gap-1.5 border-l border-border/70 pl-3 xl:flex">
+              <BookOpenCheck className="size-4 text-chart-2" />
+              <span className="text-xs font-medium text-muted-foreground">
+                Verified in seconds
+              </span>
+            </div>
             <div className="flex items-center gap-1">
               <Button
                 variant="ghost"
@@ -169,7 +184,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="gap-2 px-2" aria-label="Account menu">
-                    <span className="glass-inset flex size-8 items-center justify-center rounded-full text-xs font-bold text-primary">
+                    <span className="flex size-8 items-center justify-center rounded-full bg-primary/12 text-xs font-bold text-primary ring-1 ring-primary/20">
                       {initials || "A"}
                     </span>
                     <span className="hidden max-w-28 truncate text-sm md:inline">

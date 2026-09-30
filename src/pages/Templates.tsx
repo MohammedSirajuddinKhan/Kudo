@@ -111,30 +111,32 @@ export default function Templates() {
         }
       />
 
-      <GlassPanel className="mb-5 flex flex-col gap-3 p-3 sm:flex-row">
-        <div className="relative flex-1">
-          <Search className="absolute top-2.5 left-3 size-4 text-muted-foreground" />
-          <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search templates…"
-            aria-label="Search templates"
-            className="glass-input border-0 pl-9 shadow-none"
-          />
+      <GlassPanel className="mb-5 p-4">
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <div className="relative flex-1">
+            <Search className="absolute top-2.5 left-3 size-4 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search templates…"
+              aria-label="Search templates"
+              className="glass-input border-0 pl-9 shadow-none"
+            />
+          </div>
+          <Select value={category} onValueChange={setCategory}>
+            <SelectTrigger className="glass-input w-full border-0 shadow-none sm:w-52" aria-label="Filter by category">
+              <SelectValue placeholder="All categories" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All categories</SelectItem>
+              {(categories ?? []).map((c) => (
+                <SelectItem key={c} value={c}>
+                  {c}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-        <Select value={category} onValueChange={setCategory}>
-          <SelectTrigger className="glass-input w-full border-0 shadow-none sm:w-52" aria-label="Filter by category">
-            <SelectValue placeholder="All categories" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All categories</SelectItem>
-            {(categories ?? []).map((c) => (
-              <SelectItem key={c} value={c}>
-                {c}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
       </GlassPanel>
 
       {filtered === undefined ? (
@@ -185,7 +187,7 @@ export default function Templates() {
               </Link>
               <div className="flex items-start justify-between gap-2 p-4">
                 <div className="min-w-0">
-                  <p className="truncate font-semibold">{t.name}</p>
+                  <p className="truncate font-serif font-semibold">{t.name}</p>
                   <p className="mt-0.5 text-xs text-muted-foreground">
                     {t.category} · v{t.version} · {t.certificateCount ?? 0} issued
                   </p>
@@ -213,7 +215,7 @@ export default function Templates() {
                 </DropdownMenu>
               </div>
               <div className="flex items-center justify-between px-4 pb-4">
-                <Badge variant="secondary" className="capitalize">
+                <Badge variant="secondary" className="bg-chart-2/15 text-chart-2 capitalize ring-1 ring-chart-2/25 ring-inset">
                   {t.status}
                 </Badge>
                 <Button asChild size="sm" variant="outline" className="glass border-border/40">

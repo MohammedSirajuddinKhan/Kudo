@@ -5,6 +5,7 @@ import { ScrollText, Search, ShieldCheck } from "lucide-react";
 import { GlassPanel, PageHeader, EmptyState, formatDateTime } from "@/components/glass";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 function describe(action: string): { label: string; tone: "default" | "secondary" | "destructive" | "outline" } {
   if (action.startsWith("certificate.created")) return { label: "Certificate issued", tone: "secondary" };
@@ -77,15 +78,20 @@ export default function AuditLogs() {
           />
         </GlassPanel>
       ) : (
-        <GlassPanel className="p-2">
-          <ul className="divide-y divide-border/60">
-            {filtered.map((l) => {
-              const d = describe(l.action);
-              return (
-                <li key={l._id} className="flex flex-wrap items-center gap-x-4 gap-y-1 px-3 py-3">
-                  <Badge variant={d.tone} className="w-fit shrink-0 capitalize">
-                    {d.label}
-                  </Badge>
+      <GlassPanel className="p-2">
+        <ul className="divide-y divide-border/60">
+          {filtered.map((l) => {
+            const d = describe(l.action);
+            return (
+              <li key={l._id} className="flex flex-wrap items-center gap-x-4 gap-y-1 px-3 py-3">
+                <Badge
+                  variant={d.tone}
+                  className={cn(
+                    "w-fit shrink-0 capitalize",
+                    d.tone === "secondary" && "bg-primary/12 text-primary ring-1 ring-primary/20 ring-inset",
+                  )}
+                >
+                  {d.label}</Badge>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm">
                       {l.resourceType}
@@ -111,8 +117,7 @@ export default function AuditLogs() {
             })}
           </ul>
           <p className="flex items-center gap-1.5 px-3 py-2 text-xs text-muted-foreground">
-            <ShieldCheck className="size-3.5" /> Showing the {filtered.length} most recent entries of the
-            immutable log.
+            <ShieldCheck className="size-3.5" /> Showing the {filtered.length} most recent entries of the immutable ledger — sealed, append-only, and verifiable.
           </p>
         </GlassPanel>
       )}

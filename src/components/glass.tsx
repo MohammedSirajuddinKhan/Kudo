@@ -15,16 +15,30 @@ export function KudoLogo({ size = 32, withText = true, className }: { size?: num
       >
         <svg width={size * 0.55} height={size * 0.55} viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path
-            d="M6 4v16M6 13l8-9M6.8 12.2 15 20"
+            d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"
             stroke="currentColor"
-            strokeWidth="2.4"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M22 10v6"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"
+            stroke="currentColor"
+            strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
         </svg>
       </span>
       {withText && (
-        <span className="text-[1.15rem] font-bold tracking-tight text-foreground">
+        <span className="font-serif text-[1.15rem] font-bold tracking-tight text-foreground">
           Kudo
         </span>
       )}
@@ -83,7 +97,7 @@ export function StatCard({
             <p className="mt-1.5 text-3xl font-bold tracking-tight text-foreground">{value}</p>
             {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
           </div>
-          <div className="glass-inset flex size-11 shrink-0 items-center justify-center rounded-xl text-primary">
+          <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/15">
             {icon}
           </div>
         </div>
@@ -105,7 +119,7 @@ export function EmptyState({
 }) {
   return (
     <div className="flex flex-col items-center justify-center px-6 py-14 text-center">
-      <div className="glass mb-4 flex size-14 items-center justify-center rounded-2xl text-primary">
+      <div className="mb-4 flex size-14 items-center justify-center rounded-2xl bg-primary/10 text-primary ring-1 ring-primary/15">
         {icon}
       </div>
       <h3 className="text-base font-semibold text-foreground">{title}</h3>
@@ -143,10 +157,16 @@ export function PageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">{title}</h1>
-        {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
+        <h1 className="font-serif text-2xl font-bold tracking-tight text-foreground">
+          {title}
+          <span
+            aria-hidden="true"
+            className="mt-1.5 block h-0.5 w-10 rounded-full bg-gradient-to-r from-primary/80 to-chart-2/80"
+          />
+        </h1>
+        {description && <p className="mt-2 text-sm text-muted-foreground">{description}</p>}
       </div>
       {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
     </div>

@@ -128,7 +128,7 @@ export default function CertificateCreate() {
             Issued to {recipientName} · {formatDate(issueDate)}
           </p>
 
-          <div className="mx-auto mt-5 max-w-xs rounded-xl bg-white p-3 shadow-sm">
+          <div className="mx-auto mt-5 max-w-xs rounded-xl bg-white p-3 shadow-sm dark:bg-white">
             <QrCodeCanvas url={verifyUrl} className="size-full" />
           </div>
           <p className="mt-2 text-xs text-muted-foreground">Scan to verify publicly</p>

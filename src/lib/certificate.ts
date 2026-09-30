@@ -243,6 +243,26 @@ export async function loadImage(url: string): Promise<HTMLImageElement> {
   return img;
 }
 
+/**
+ * Base-image cache so interactive redraws (slider drags, text edits) skip the
+ * network fetch + decode entirely — like a Photoshop layer that stays
+ * composited while you scrub a control. Failures evict so a transient error
+ * can retry.
+ */
+const imageCache = new Map<string, Promise<HTMLImageElement>>();
+
+export function loadImageCached(url: string): Promise<HTMLImageElement> {
+  let p = imageCache.get(url);
+  if (!p) {
+    p = loadImage(url).catch((e) => {
+      imageCache.delete(url);
+      throw e;
+    });
+    imageCache.set(url, p);
+  }
+  return p;
+}
+
 export interface RenderOptions {
   qrImage?: HTMLImageElement | null;
   testMode?: boolean;
@@ -280,7 +300,7 @@ export async function renderCertificate(
   if (!ctx) throw new Error("Canvas is not supported in this browser.");
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  const img = await loadImage(imageUrl);
+  const img = await loadImageCached(imageUrl);
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
   for (const field of fields) {

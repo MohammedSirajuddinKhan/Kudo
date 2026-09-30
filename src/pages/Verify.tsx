@@ -42,7 +42,7 @@ interface VerifyResult {
 function StatusBadge({ result }: { result: VerifyResult["result"] }) {
   if (result === "verified") {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-success/15 px-3 py-1 text-sm font-semibold text-success">
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-success/15 px-3 py-1 text-sm font-semibold text-success ring-1 ring-success/30 ring-inset">
         <BadgeCheck className="size-4" /> VERIFIED
       </span>
     );
@@ -150,13 +150,13 @@ export default function Verify() {
           </Link>
         </div>
 
-        <GlassPanel strong className="p-7">
+        <GlassPanel strong className="border-t-2 border-t-chart-2/50 p-7">
           <div className="mb-6 flex items-start gap-4">
-            <div className="glass-inset flex size-12 shrink-0 items-center justify-center rounded-2xl text-primary">
+            <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/12 text-primary ring-1 ring-primary/20">
               <ScanLine className="size-6" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight">Verify a certificate</h1>
+              <h1 className="font-serif text-2xl font-bold tracking-tight">Verify a certificate</h1>
               <p className="mt-1 text-sm text-muted-foreground">
                 Enter the certificate ID shown on the certificate, or scan its QR code —
                 no account needed.
@@ -277,7 +277,7 @@ export default function Verify() {
 
         <GlassPanel className="mt-5 p-6">
           <div className="flex items-start gap-4">
-            <div className="glass-inset flex size-10 shrink-0 items-center justify-center rounded-xl text-primary">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/12 text-primary ring-1 ring-primary/15">
               <QrCode className="size-5" />
             </div>
             <div className="text-sm">

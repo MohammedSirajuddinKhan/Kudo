@@ -12,7 +12,7 @@ import {
 } from "recharts";
 import { GlassPanel } from "@/components/glass";
 
-const PIE_COLORS = ["#5b7cfa", "#3fb0c9", "#8b5cf6", "#34b3a0", "#f59e0b", "#64748b"];
+const PIE_COLORS = ["#2e6b5e", "#c99a3c", "#5c8a52", "#a67c2e", "#3d5a80", "#64748b"];
 
 interface MonthlyPoint {
   label: string;
@@ -53,7 +53,7 @@ export default function ReportCharts({
                   backdropFilter: "blur(8px)",
                 }}
               />
-              <Bar dataKey="count" name="Issued" radius={[6, 6, 0, 0]} fill="#5b7cfa" />
+              <Bar dataKey="count" name="Issued" radius={[6, 6, 0, 0]} fill="#2e6b5e" />
             </BarChart>
           </ResponsiveContainer>
         </div>

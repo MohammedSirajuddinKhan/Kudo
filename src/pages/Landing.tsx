@@ -95,8 +95,8 @@ export default function Landing() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <span className="glass-inset mb-6 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium text-muted-foreground">
-              <Sparkles className="size-3.5 text-primary" />
+            <span className="mb-6 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-xs font-medium text-primary ring-1 ring-primary/20 ring-inset">
+              <Sparkles className="size-3.5" />
               Digital certificate creator & verification platform
             </span>
             <h1 className="mx-auto max-w-3xl text-5xl font-bold tracking-tight text-balance sm:text-6xl">
@@ -130,7 +130,7 @@ export default function Landing() {
             className="relative mx-auto mt-14 max-w-4xl"
           >
             <div className="glass-editor absolute -inset-8 -z-10 rounded-[2.5rem] bg-gradient-to-br from-primary/12 via-transparent to-chart-2/12 blur-2xl" aria-hidden="true" />
-            <GlassPanel className="overflow-hidden p-3 sm:p-4">
+            <GlassPanel className="overflow-hidden border-t-4 border-t-chart-2/60 p-3 sm:p-4">
               <div className="editor-canvas relative overflow-hidden rounded-xl bg-white">
                 <div className="aspect-[1.414/1] w-full p-6 sm:p-10">
                   <div className="flex h-full flex-col items-center justify-between text-center">
@@ -174,7 +174,7 @@ export default function Landing() {
       <section id="how" className="px-4 py-16 sm:py-20">
         <div className="mx-auto max-w-6xl">
           <div className="mx-auto mb-12 max-w-xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">How Kudo works</h2>
+            <h2 className="font-serif text-3xl font-bold tracking-tight sm:text-4xl">How Kudo works</h2>
             <p className="mt-3 text-muted-foreground">
               From any certificate design to verifiable credentials in five steps.
             </p>
@@ -192,7 +192,7 @@ export default function Landing() {
                   <div className="glass-inset mb-4 flex size-10 items-center justify-center rounded-xl text-primary">
                     <step.icon className="size-5" />
                   </div>
-                  <p className="text-xs font-semibold tracking-widest text-primary/80 uppercase">
+                  <p className="text-xs font-bold tracking-widest text-chart-2 uppercase">
                     Step {i + 1}
                   </p>
                   <h3 className="mt-1 font-semibold">{step.title}</h3>
@@ -208,7 +208,7 @@ export default function Landing() {
       <section id="features" className="px-4 py-16 sm:py-20">
         <div className="mx-auto max-w-6xl">
           <div className="mx-auto mb-12 max-w-xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+            <h2 className="font-serif text-3xl font-bold tracking-tight sm:text-4xl">
               Everything an institution needs
             </h2>
             <p className="mt-3 text-muted-foreground">
@@ -245,7 +245,7 @@ export default function Landing() {
           <GlassPanel strong className="relative overflow-hidden p-10 text-center sm:p-14">
             <div className="glass-editor absolute -top-24 left-1/2 -z-10 size-72 -translate-x-1/2 rounded-full bg-primary/15 blur-3xl" aria-hidden="true" />
             <Boxes className="mx-auto mb-4 size-10 text-primary" />
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+            <h2 className="font-serif text-3xl font-bold tracking-tight sm:text-4xl">
               Ready to issue your first certificate?
             </h2>
             <p className="mx-auto mt-3 max-w-lg text-muted-foreground">

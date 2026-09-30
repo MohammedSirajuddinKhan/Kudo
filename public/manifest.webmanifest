@@ -4,8 +4,8 @@
   "description": "Create, issue, and verify digital certificates.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f7f9fc",
-  "theme_color": "#3b5bdb",
+  "background_color": "#f7f4ea",
+  "theme_color": "#2e6b5e",
   "icons": [
     {
       "src": "/logo.svg",

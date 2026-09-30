@@ -144,8 +144,8 @@ export default function NewTemplate() {
                 pickFile(e.dataTransfer.files?.[0]);
               }}
               className={cn(
-                "glass-inset flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-6 py-12 text-center transition-all",
-                dragOver ? "border-primary/60 bg-primary/5" : "border-border/60 hover:border-primary/40",
+                "flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-6 py-12 text-center transition-all",
+                dragOver ? "border-primary/60 bg-primary/12" : "border-primary/30 bg-primary/8 hover:border-primary/50 hover:bg-primary/12",
               )}
             >
               {previewUrl && file?.type === "application/pdf" ? (

@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { CertificateField } from "@/lib/certificate";
-import { DEFAULT_FONT } from "@/lib/certificate";
+import { DEFAULT_FONT, layoutTextField, createTextMeasurer } from "@/lib/certificate";
 import { EditorChrome, EditorToolbar, PreviewCanvas, FieldInspector } from "./template-editor-parts";
 import { cn } from "@/lib/utils";
 
@@ -47,6 +47,10 @@ function makeField(id: string, x: number, y: number, height: number, index: numb
 
 const clone = <T,>(v: T): T => JSON.parse(JSON.stringify(v));
 
+/** Shared offscreen measurer so on-certificate text matches the export engine exactly. */
+const measureTextWidth = createTextMeasurer();
+const TEST_CERTIFICATE_ID = "KUDO-0000-TEST";
+
 export default function TemplateEditor() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -68,6 +72,19 @@ export default function TemplateEditor() {
   const [name, setName] = useState("");
   const [dirty, setDirty] = useState(false);
   const canvasWrapRef = useRef<HTMLDivElement>(null);
+  // Rendered width of the certificate canvas — drives the on-certificate live
+  // text scale (font size in asset px → screen px).
+  const [wrapW, setWrapW] = useState(0);
+  useEffect(() => {
+    const el = canvasWrapRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver((entries) => {
+      const w = entries[0]?.contentRect.width ?? 0;
+      setWrapW(w);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
   const dragState = useRef<{
     fieldId: string;
     startX: number;
@@ -383,6 +400,29 @@ export default function TemplateEditor() {
                 <>
                   {textFields.map((f, idx) => {
                     const isSel = f.id === selectedId;
+                    // Live WYSIWYG text: same layout math as the export engine,
+                    // resolved in asset pixels then scaled to the canvas.
+                    const scale = wrapW > 0 && assetW > 0 ? wrapW / assetW : 0;
+                    const raw =
+                      f.type === "certificateId"
+                        ? TEST_CERTIFICATE_ID
+                        : f.type === "qr"
+                          ? ""
+                          : (testValues[f.id] ?? "");
+                    const resolved =
+                      f.type === "qr"
+                        ? { size: f.fontSize, lines: [""] }
+                        : layoutTextField(
+                            measureTextWidth,
+                            f,
+                            raw,
+                            f.width * assetW,
+                            f.height * assetH,
+                            true,
+                          );
+                    const fontPx = resolved.size * scale;
+                    const spacingPx =
+                      f.letterSpacing * (resolved.size / Math.max(f.fontSize, 1)) * scale;
                     return (
                       <div
                         key={f.id}
@@ -408,6 +448,37 @@ export default function TemplateEditor() {
                         }}
                         onKeyDown={() => setSelectedId(f.id)}
                       >
+                        {f.type !== "qr" && fontPx > 0 && (
+                          <span
+                            className="pointer-events-none absolute inset-0 flex overflow-hidden"
+                            style={{
+                              fontFamily: f.fontFamily,
+                              fontWeight: f.fontWeight,
+                              fontStyle: f.italic ? "italic" : undefined,
+                              textDecoration: f.underline ? "underline" : undefined,
+                              color: f.color,
+                              fontSize: `${fontPx.toFixed(2)}px`,
+                              lineHeight: f.lineHeight,
+                              letterSpacing: `${spacingPx.toFixed(2)}px`,
+                              alignItems:
+                                f.vAlign === "top"
+                                  ? "flex-start"
+                                  : f.vAlign === "bottom"
+                                    ? "flex-end"
+                                    : "center",
+                              justifyContent:
+                                f.align === "left"
+                                  ? "flex-start"
+                                  : f.align === "right"
+                                    ? "flex-end"
+                                    : "center",
+                              textAlign: f.align,
+                              whiteSpace: f.wrap ? "normal" : "nowrap",
+                            }}
+                          >
+                            {resolved.lines.join(" ")}
+                          </span>
+                        )}
                         <span
                           className={cn(
                             "pointer-events-none absolute -top-0.5 left-0 max-w-full truncate rounded-br-md rounded-tl-md px-1.5 text-[10px] font-medium leading-4 text-white",
@@ -455,7 +526,7 @@ export default function TemplateEditor() {
             </div>
           </GlassPanel>
           {mode === "preview" && (
-            <GlassPanel className="mt-3 p-4 text-sm text-muted-foreground">
+            <GlassPanel className="mt-4 p-4 text-sm text-muted-foreground">
               Preview renders live with test data — exactly what exported certificates look like.
               Enter sample values below.
             </GlassPanel>

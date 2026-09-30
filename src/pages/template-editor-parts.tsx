@@ -79,7 +79,7 @@ export function EditorChrome({
     <div>
       <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0">
-          <h1 className="truncate text-2xl font-bold tracking-tight text-foreground">
+          <h1 className="truncate font-serif text-2xl font-bold tracking-tight text-foreground">
             Edit: {templateName}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -93,17 +93,17 @@ export function EditorChrome({
           </Button>
           <Button variant="outline" className="glass border-border/40" onClick={onRunAi} disabled={aiBusy}>
             {aiBusy ? (
-              <Loader2 className="mr-1.5 size-4 animate-spin" />
+              <Loader2 className="mr-2 size-4 animate-spin" />
             ) : (
-              <Sparkles className="mr-1.5 size-4" />
+              <Sparkles className="mr-2 size-4" />
             )}
             {hasFields ? "Re-run AI (replaces)" : "AI: detect fields"}
           </Button>
           <Button onClick={onSave} disabled={saving || !dirty}>
             {saving ? (
-              <Loader2 className="mr-1.5 size-4 animate-spin" />
+              <Loader2 className="mr-2 size-4 animate-spin" />
             ) : (
-              <Save className="mr-1.5 size-4" />
+              <Save className="mr-2 size-4" />
             )}
             Save
           </Button>
@@ -131,13 +131,13 @@ export function EditorToolbar(props: {
   setZoom: (fn: (z: number) => number) => void;
 }) {
   return (
-    <GlassPanel strong className="mb-3 flex flex-wrap items-center gap-1.5 p-2.5">
-      <div className="flex items-center rounded-lg bg-white/40 p-0.5 dark:bg-white/10">
+    <GlassPanel strong className="mb-4 flex flex-wrap items-center gap-1.5 p-2.5">
+      <div className="flex items-center rounded-lg bg-primary/10 p-0.5">
         <Button variant={props.mode === "edit" ? "secondary" : "ghost"} size="sm" onClick={() => props.setMode("edit")}>
-          <Pencil className="mr-1 size-3.5" /> Edit
+          <Pencil className="mr-1.5 size-4" /> Edit
         </Button>
         <Button variant={props.mode === "preview" ? "secondary" : "ghost"} size="sm" onClick={() => props.setMode("preview")}>
-          <Eye className="mr-1 size-3.5" /> Preview
+          <Eye className="mr-1.5 size-4" /> Preview
         </Button>
       </div>
       <div className="mx-1 h-6 w-px bg-border" />
@@ -159,11 +159,11 @@ export function EditorToolbar(props: {
       </Tooltip>
       <div className="mx-1 h-6 w-px bg-border" />
       <Button variant={props.drawing ? "secondary" : "ghost"} size="sm" onClick={props.toggleDrawing}>
-        <MousePointer2 className="mr-1 size-3.5" />
+        <MousePointer2 className="mr-1.5 size-4" />
         {props.drawing ? "Click canvas…" : "Draw field"}
       </Button>
       <Button variant="ghost" size="sm" onClick={props.onAdd}>
-        <Plus className="mr-1 size-3.5" /> Add
+        <Plus className="mr-1.5 size-4" /> Add
       </Button>
       <div className="ml-auto flex items-center gap-1.5">
         <Tooltip>
@@ -327,10 +327,6 @@ export function FieldInspector({
     onPatch(p);
   };
 
-  // Display size for the style sampler; spacing scales proportionally so the
-  // sample stays faithful to the real canvas output.
-  const sampleSize = Math.min(field.fontSize, 22);
-
   if (field.type === "qr") {
     return (
       <GlassPanel className="p-4">
@@ -369,30 +365,6 @@ export function FieldInspector({
             </TooltipTrigger>
             <TooltipContent>Delete</TooltipContent>
           </Tooltip>
-        </div>
-      </div>
-
-      <div className="glass-inset mb-3.5 rounded-lg p-3">
-        <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-          Live preview
-        </p>
-        <div
-          className="overflow-hidden"
-          style={{
-            fontFamily: field.fontFamily,
-            fontWeight: field.fontWeight,
-            fontStyle: field.italic ? "italic" : undefined,
-            textDecoration: field.underline ? "underline" : undefined,
-            color: field.color,
-            fontSize: `${sampleSize}px`,
-            lineHeight: field.lineHeight,
-            letterSpacing: `${(field.letterSpacing * (sampleSize / Math.max(field.fontSize, 1))).toFixed(2)}px`,
-            textTransform: field.textTransform,
-            textAlign: field.align,
-            whiteSpace: field.wrap ? "normal" : "nowrap",
-          }}
-        >
-          {`Sample ${field.name || "text"}`}
         </div>
       </div>
 

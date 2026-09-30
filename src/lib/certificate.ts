@@ -102,17 +102,21 @@ export function transformText(text: string, t: CertificateField["textTransform"]
   }
 }
 
-function measure(
-  ctx: CanvasRenderingContext2D,
-  text: string,
-  font: string,
-  letterSpacing: number,
-): number {
-  ctx.font = font;
-  if (!text) return 0;
-  const w = ctx.measureText(text).width;
-  if (letterSpacing <= 0) return w;
-  return w + letterSpacing * Math.max(0, Array.from(text).length - 1);
+/** Measures typeset text width in canvas pixels (shared by engine + editor overlay). */
+export type TextMeasurer = (text: string, font: string, letterSpacing: number) => number;
+
+/** Offscreen-canvas measurer so the DOM overlay can reuse the engine's exact metrics. */
+export function createTextMeasurer(): TextMeasurer {
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  return (text, font, letterSpacing) => {
+    if (!ctx) return 0;
+    ctx.font = font;
+    if (!text) return 0;
+    const w = ctx.measureText(text).width;
+    if (letterSpacing <= 0) return w;
+    return w + letterSpacing * Math.max(0, Array.from(text).length - 1);
+  };
 }
 
 function fontString(f: CertificateField, size: number): string {
@@ -121,7 +125,7 @@ function fontString(f: CertificateField, size: number): string {
 }
 
 function wrapLines(
-  ctx: CanvasRenderingContext2D,
+  measure: TextMeasurer,
   text: string,
   maxWidth: number,
   font: string,
@@ -133,7 +137,7 @@ function wrapLines(
   let current = "";
   for (const word of words) {
     const candidate = current ? `${current} ${word}` : word;
-    if (measure(ctx, candidate, font, letterSpacing) <= maxWidth || !current) {
+    if (measure(candidate, font, letterSpacing) <= maxWidth || !current) {
       current = candidate;
     } else {
       lines.push(current);
@@ -143,6 +147,52 @@ function wrapLines(
   if (current) lines.push(current);
   return lines;
 }
+
+/**
+ * Shared text layout: resolve the final font size (shrink-to-fit when autoFit
+ * is enabled, wrap only when configured) and the resulting lines. Text never
+ * overflows the field box. Used by both the canvas engine and the editor's
+ * on-certificate live overlay so WYSIWYG preview matches exports exactly.
+ */
+export function layoutTextField(
+  measure: TextMeasurer,
+  field: CertificateField,
+  raw: string,
+  boxW: number,
+  boxH: number,
+  testMode: boolean,
+): { size: number; lines: string[] } {
+  let text = transformText(raw, field.textTransform as CertificateField["textTransform"]);
+  if (!text && field.placeholder) text = field.placeholder;
+  if (!text && testMode) text = `Sample ${field.name}`;
+
+  let size = field.fontSize;
+  let lines: string[] = text ? [text] : [""];
+
+  if (!field.wrap) {
+    if (field.autoFit) {
+      while (
+        size > 6 &&
+        measure(text, fontString(field, size), field.letterSpacing * (size / field.fontSize)) > boxW
+      ) {
+        size *= 0.94;
+        if (size < 6) break;
+      }
+    }
+  } else {
+    for (let guard = 0; guard < 24; guard++) {
+      const font = fontString(field, size);
+      lines = wrapLines(measure, text, boxW, font, field.letterSpacing * (size / field.fontSize));
+      const totalHeight = lines.length * size * field.lineHeight;
+      if (totalHeight <= boxH || size <= 6) break;
+      size *= 0.92;
+    }
+  }
+  return { size, lines };
+}
+
+/** Shared offscreen measurer for width math outside the render pass. */
+const textWidth = createTextMeasurer();
 
 /**
  * Draw a text field with intelligent fitting: shrink-to-fit when autoFit is
@@ -155,32 +205,10 @@ function drawTextField(
   box: { x: number; y: number; w: number; h: number },
   testMode: boolean,
 ) {
+  const { size, lines } = layoutTextField(textWidth, field, raw, box.w, box.h, testMode);
   let text = transformText(raw, field.textTransform as CertificateField["textTransform"]);
   if (!text && field.placeholder) text = field.placeholder;
   if (!text && testMode) text = `Sample ${field.name}`;
-
-  let size = field.fontSize;
-  let lines: string[] = text ? [text] : [""];
-
-  if (!field.wrap) {
-    if (field.autoFit) {
-      while (
-        size > 6 &&
-        measure(ctx, text, fontString(field, size), field.letterSpacing * (size / field.fontSize)) > box.w
-      ) {
-        size *= 0.94;
-        if (size < 6) break;
-      }
-    }
-  } else {
-    for (let guard = 0; guard < 24; guard++) {
-      const font = fontString(field, size);
-      lines = wrapLines(ctx, text, box.w, font, field.letterSpacing * (size / field.fontSize));
-      const totalHeight = lines.length * size * field.lineHeight;
-      if (totalHeight <= box.h || size <= 6) break;
-      size *= 0.92;
-    }
-  }
 
   ctx.save();
   ctx.font = fontString(field, size);
@@ -195,7 +223,7 @@ function drawTextField(
 
   lines.forEach((line, i) => {
     const y = startY + lineH * i + lineH / 2;
-    const w = measure(ctx, line, ctx.font, scaledSpacing);
+    const w = textWidth(line, ctx.font, scaledSpacing);
     let startX = box.x;
     if (field.align === "center") startX = box.x + (box.w - w) / 2;
     else if (field.align === "right") startX = box.x + box.w - w;

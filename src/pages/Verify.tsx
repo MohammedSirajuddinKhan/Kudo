@@ -62,7 +62,7 @@ function StatusBadge({ result }: { result: VerifyResult["result"] }) {
     );
   }
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-destructive/10 px-3 py-1 text-sm font-semibold text-destructive">
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-destructive/15 px-3 py-1 text-sm font-semibold text-destructive ring-1 ring-destructive/30 ring-inset">
       <FileWarning className="size-4" /> NOT FOUND
     </span>
   );

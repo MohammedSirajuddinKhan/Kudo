@@ -24,8 +24,15 @@ export const sendCertificatePdf = action({
   handler: async (ctx, args) => {
     const userId = await requireUserId(ctx);
 
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      throw new Error(
+        "Email delivery is not configured yet. Add the RESEND_API_KEY environment variable (from resend.com/api-keys) to the Convex backend, then try again.",
+      );
+    }
+
     const { Resend } = await import("resend");
-    const resend = new Resend(process.env.RESEND_API_KEY);
+    const resend = new Resend(apiKey);
 
     const { error } = await resend.emails.send({
       // Resend requires a verified sender domain; the fallback works for

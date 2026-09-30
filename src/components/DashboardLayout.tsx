@@ -18,7 +18,7 @@ import {
   X,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
-import { GlassPanel, KudoLogo, ThemeToggle } from "@/components/glass";
+import { GlassPanel, CredoraLogo, ThemeToggle } from "@/components/glass";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -121,7 +121,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         <aside className="sticky top-4 hidden h-[calc(100vh-2rem)] w-60 shrink-0 lg:block">
           <GlassPanel className="flex h-full flex-col p-4">
             <Link to="/" className="mb-6 px-1">
-              <KudoLogo />
+              <CredoraLogo />
             </Link>
             {navLinks}
             <div className="mt-auto">
@@ -153,7 +153,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
             </Button>
             <Link to="/" className="lg:hidden">
-              <KudoLogo withText={false} />
+              <CredoraLogo withText={false} />
             </Link>
             <form onSubmit={handleSearch} className="relative flex-1" role="search">
               <Search className="absolute top-2.5 left-3 size-4 text-muted-foreground" />

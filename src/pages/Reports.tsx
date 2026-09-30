@@ -22,7 +22,7 @@ export default function Reports() {
   const exportIssuance = () => {
     if (!reports) return;
     downloadCsv(
-      "kudo-issuance-report.csv",
+      "credora-issuance-report.csv",
       ["Month", "Certificates issued"],
       reports.issuedOverTime.map((m) => ({ Month: m.label, "Certificates issued": String(m.count) })),
     );

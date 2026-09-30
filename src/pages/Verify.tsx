@@ -12,7 +12,7 @@ import {
   QrCode,
   ScanLine,
 } from "lucide-react";
-import { GlassPanel, KudoLogo, formatDate } from "@/components/glass";
+import { GlassPanel, CredoraLogo, formatDate } from "@/components/glass";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -140,7 +140,7 @@ export default function Verify() {
       <div className="mx-auto max-w-2xl">
         <div className="mb-8 flex items-center justify-between">
           <Link to="/">
-            <KudoLogo />
+            <CredoraLogo />
           </Link>
           <Link
             to="/auth"
@@ -168,7 +168,7 @@ export default function Verify() {
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="e.g. KUDO-2026-000184"
+              placeholder="e.g. CREDORA-2026-000184"
               aria-label="Certificate ID"
               className="glass-input h-11 flex-1 font-mono uppercase"
               disabled={loading}
@@ -283,7 +283,7 @@ export default function Verify() {
             <div className="text-sm">
               <p className="font-medium">Scanning a QR code?</p>
               <p className="mt-1 text-muted-foreground">
-                Every Kudo certificate can carry a QR code that opens its verification page
+                Every Credora certificate can carry a QR code that opens its verification page
                 directly. Scanning verifies the certificate against the issuer's live records —
                 revoked or expired certificates are flagged instantly.
               </p>
@@ -293,7 +293,7 @@ export default function Verify() {
 
         <p className="mt-6 flex items-center justify-center gap-1.5 text-center text-xs text-muted-foreground">
           <Lock className="size-3.5" />
-          Kudo verification pages are public. Admin data stays protected behind sign-in.
+          Credora verification pages are public. Admin data stays protected behind sign-in.
         </p>
       </div>
     </div>

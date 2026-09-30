@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { internalQuery, mutation, query } from "./_generated/server";
-import { requireUser, getSettings, logAudit } from "./kudo";
+import { requireUser, getSettings, logAudit } from "./brand";
 
 /** Internal (server-only) template fetch used by actions like AI analysis. */
 export const getTemplateInternal = internalQuery({

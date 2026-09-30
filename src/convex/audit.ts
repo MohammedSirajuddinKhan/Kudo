@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { requireUser, logAudit } from "./kudo";
+import { requireUser, logAudit } from "./brand";
 
 export const listAuditLogs = query({
   args: {

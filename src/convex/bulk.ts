@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query, type MutationCtx } from "./_generated/server";
-import { requireUser, getSettings, logAudit } from "./kudo";
+import { requireUser, getSettings, logAudit } from "./brand";
 
 export const createJob = mutation({
   args: {

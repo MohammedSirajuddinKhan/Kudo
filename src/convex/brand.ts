@@ -132,7 +132,7 @@ export async function getSettings(ctx: ReaderCtx) {
     .unique();
   const defaults = {
     organizationName: "Your Organization",
-    certificateIdPrefix: "KUDO",
+    certificateIdPrefix: "CREDORA",
     certificateIdPadding: 6,
     showQrOnCertificates: true,
   };

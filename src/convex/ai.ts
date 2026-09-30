@@ -1,9 +1,9 @@
 import { v } from "convex/values";
 import { action, internalQuery } from "./_generated/server";
-import { requireUserId } from "./kudo";
+import { requireUserId } from "./brand";
 import { internal } from "./_generated/api";
 
-const SYSTEM_PROMPT = `You are a certificate template analyzer for Kudo, a digital certificate platform.
+const SYSTEM_PROMPT = `You are a certificate template analyzer for Credora, a digital certificate platform.
 You will receive an image of a certificate. Identify the editable regions (blank spaces, underlines,
 boxes, or placeholder text) where personalized data should be typed when the certificate is issued.
 
@@ -78,7 +78,7 @@ export const analyzeTemplate = action({
   args: { templateId: v.id("templates") },
   handler: async (ctx, args): Promise<{ ok: boolean; fields?: AiField[]; error?: string }> => {
     const userId = await requireUserId(ctx);
-    const userInfo = await ctx.runQuery(internal.kudo.getUserInfoInternal, { userId });
+    const userInfo = await ctx.runQuery(internal.brand.getUserInfoInternal, { userId });
     const template = await ctx.runQuery(internal.ai.getTemplateMeta, { id: args.templateId });
     if (!template) return { ok: false, error: "Template not found." };
 
@@ -176,7 +176,7 @@ export const analyzeTemplate = action({
         const detail = (await apiResponse.json().catch(() => null)) as {
           error?: { message?: string; status?: string };
         } | null;
-        await ctx.runMutation(internal.kudo.writeAuditInternal, {
+        await ctx.runMutation(internal.brand.writeAuditInternal, {
           action: "ai.analysis_failed",
           actorId: userId,
           actorEmail: userInfo.email,
@@ -246,7 +246,7 @@ export const analyzeTemplate = action({
         });
       }
 
-      await ctx.runMutation(internal.kudo.writeAuditInternal, {
+      await ctx.runMutation(internal.brand.writeAuditInternal, {
         action: "ai.analyzed",
         actorId: userId,
         actorEmail: userInfo.email,

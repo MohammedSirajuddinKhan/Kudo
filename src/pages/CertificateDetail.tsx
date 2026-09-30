@@ -60,7 +60,7 @@ export default function CertificateDetail() {
         showQr: settings?.showQrOnCertificates ?? true,
         scale: 2.2,
       });
-      const fileName = `kudo-${cert.certificateId}`;
+      const fileName = `credora-${cert.certificateId}`;
       if (format === "pdf") {
         await exportCanvasAsPdf(canvas, fileName);
       } else {

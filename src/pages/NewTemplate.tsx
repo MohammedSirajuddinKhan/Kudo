@@ -52,7 +52,7 @@ export default function NewTemplate() {
   const [dragOver, setDragOver] = useState(false);
 
   const createTemplate = useMutation(api.templates.createTemplate);
-  const generateUploadUrl = useMutation(api.kudo.generateUploadUrl);
+  const generateUploadUrl = useMutation(api.brand.generateUploadUrl);
 
   const pickFile = (f: File | undefined | null) => {
     if (!f) return;

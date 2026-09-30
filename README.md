@@ -240,7 +240,7 @@ Ideally, instead of using a new page, use a Dialog instead.
 # Deploying to Vercel
 
 The repo ships `vercel.json` configured for this Vite SPA: framework auto-detection,
-Bun install/build, SPA rewrites (deep links like `/verify/KUDO-…` resolve to `index.html`),
+Bun install/build, SPA rewrites (deep links like `/verify/CREDORA-…` resolve to `index.html`),
 hashed-asset caching and security headers.
 
 1. Import the repository at https://vercel.com/import (or run `bunx vercel` to link

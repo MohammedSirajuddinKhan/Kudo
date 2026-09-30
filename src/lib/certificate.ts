@@ -298,7 +298,7 @@ export interface RenderOptions {
 }
 
 /**
- * The Kudo rendering engine: the original template is the immutable base
+ * The Credora rendering engine: the original template is the immutable base
  * layer, polished typeset field values sit on top, and the QR code is
  * composited last. Coordinates are normalized, so output scales losslessly
  * to any export resolution.

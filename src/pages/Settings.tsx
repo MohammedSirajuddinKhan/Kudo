@@ -59,7 +59,7 @@ export default function Settings() {
     }
   };
 
-  const idPreview = `${prefix.trim().toUpperCase() || "KUDO"}-${new Date().getFullYear()}-${"0".repeat(
+  const idPreview = `${prefix.trim().toUpperCase() || "CREDORA"}-${new Date().getFullYear()}-${"0".repeat(
     Math.max(0, (parseInt(padding, 10) || 6) - 1),
   )}1`;
 
@@ -130,7 +130,7 @@ export default function Settings() {
                   id="prefix"
                   value={prefix}
                   onChange={(e) => setPrefix(e.target.value.toUpperCase())}
-                  placeholder="KUDO"
+                  placeholder="CREDORA"
                   className="glass-input font-mono uppercase"
                   maxLength={10}
                 />

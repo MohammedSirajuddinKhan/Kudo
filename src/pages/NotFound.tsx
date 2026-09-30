@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router";
 import { ArrowRight, QrCode } from "lucide-react";
-import { GlassPanel, KudoLogo } from "@/components/glass";
+import { GlassPanel, CredoraLogo } from "@/components/glass";
 import { Button } from "@/components/ui/button";
 
 export default function NotFound() {
@@ -16,7 +16,7 @@ export default function NotFound() {
         >
           <div className="mb-8 flex justify-center">
             <Link to="/">
-              <KudoLogo />
+              <CredoraLogo />
             </Link>
           </div>
 

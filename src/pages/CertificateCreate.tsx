@@ -264,7 +264,7 @@ export default function CertificateCreate() {
                   id="cc-id"
                   value={customId}
                   onChange={(e) => setCustomId(e.target.value.toUpperCase())}
-                  placeholder={`${settings?.certificateIdPrefix ?? "KUDO"}-…`}
+                  placeholder={`${settings?.certificateIdPrefix ?? "CREDORA"}-…`}
                   className="glass-input mt-1.5 font-mono text-sm"
                 />
               </div>

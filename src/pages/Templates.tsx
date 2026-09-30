@@ -100,7 +100,7 @@ export default function Templates() {
     <div>
       <PageHeader
         title="Templates"
-        description="Reusable certificate designs. Upload any layout — Kudo maps the editable fields."
+        description="Reusable certificate designs. Upload any layout — Credora maps the editable fields."
         actions={
           <Button asChild>
             <Link to="/templates/new">

@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query, type MutationCtx } from "./_generated/server";
-import { requireUser, getSettings, logAudit } from "./kudo";
+import { requireUser, getSettings, logAudit } from "./brand";
 
 /** Format an ISO date (yyyy-mm-dd) as "25 September 2026". */
 export function formatDate(iso: string): string {

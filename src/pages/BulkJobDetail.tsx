@@ -76,7 +76,7 @@ export default function BulkJobDetail() {
         done++;
         setProgressPct(Math.round((done / generatedRows.length) * 100));
       }
-      await downloadZip(files, `kudo-bulk-${job.templateName.replace(/\s+/g, "-").toLowerCase()}`);
+      await downloadZip(files, `credora-bulk-${job.templateName.replace(/\s+/g, "-").toLowerCase()}`);
       toast.success(`Downloaded ${files.length} certificates as ZIP.`);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not build the ZIP.");

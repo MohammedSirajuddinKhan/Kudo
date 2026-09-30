@@ -18,7 +18,7 @@ import {
   Users,
   Boxes,
 } from "lucide-react";
-import { GlassPanel, KudoLogo, ThemeToggle } from "@/components/glass";
+import { GlassPanel, CredoraLogo, ThemeToggle } from "@/components/glass";
 import { Button } from "@/components/ui/button";
 
 const steps = [
@@ -68,7 +68,7 @@ export default function Landing() {
       <header className="sticky top-0 z-40 px-4 pt-4">
         <GlassPanel strong className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-6">
-            <KudoLogo />
+            <CredoraLogo />
             <nav className="hidden items-center gap-5 text-sm text-muted-foreground md:flex" aria-label="Primary">
               <a href="#how" className="transition-colors hover:text-foreground">How it works</a>
               <a href="#features" className="transition-colors hover:text-foreground">Features</a>
@@ -160,7 +160,7 @@ export default function Landing() {
                     </div>
                     <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
                       <BadgeCheck className="size-3.5 text-chart-2" />
-                      KUDO-2026-000184 · Verified
+                      CREDORA-2026-000184 · Verified
                     </div>
                   </div>
                 </div>
@@ -174,7 +174,7 @@ export default function Landing() {
       <section id="how" className="px-4 py-16 sm:py-20">
         <div className="mx-auto max-w-6xl">
           <div className="mx-auto mb-12 max-w-xl text-center">
-            <h2 className="font-serif text-3xl font-bold tracking-tight sm:text-4xl">How Kudo works</h2>
+            <h2 className="font-serif text-3xl font-bold tracking-tight sm:text-4xl">How Credora works</h2>
             <p className="mt-3 text-muted-foreground">
               From any certificate design to verifiable credentials in five steps.
             </p>
@@ -266,7 +266,7 @@ export default function Landing() {
 
       <footer className="px-4 pb-10">
         <GlassPanel className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-5 text-sm text-muted-foreground sm:flex-row">
-          <KudoLogo size={26} />
+          <CredoraLogo size={26} />
           <p>Create. Issue. Verify.</p>
           <div className="flex items-center gap-4">
             <Link to="/verify" className="transition-colors hover:text-foreground">Verify</Link>

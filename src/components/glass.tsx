@@ -5,8 +5,8 @@ import { cn } from "@/lib/utils";
 import { Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-/** Kudo wordmark with a layered glass badge. */
-export function KudoLogo({ size = 32, withText = true, className }: { size?: number; withText?: boolean; className?: string }) {
+/** Credora wordmark with a layered glass badge. */
+export function CredoraLogo({ size = 32, withText = true, className }: { size?: number; withText?: boolean; className?: string }) {
   return (
     <span className={cn("inline-flex items-center gap-2.5", className)}>
       <span
@@ -39,7 +39,7 @@ export function KudoLogo({ size = 32, withText = true, className }: { size?: num
       </span>
       {withText && (
         <span className="font-serif text-[1.15rem] font-bold tracking-tight text-foreground">
-          Kudo
+          Credora
         </span>
       )}
     </span>

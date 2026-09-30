@@ -6,7 +6,7 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { useAuth } from "@/hooks/use-auth";
-import { GlassPanel, KudoLogo, ThemeToggle } from "@/components/glass";
+import { GlassPanel, CredoraLogo, ThemeToggle } from "@/components/glass";
 import { ArrowRight, GraduationCap, Loader2, Mail } from "lucide-react";
 import { Suspense, useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
@@ -99,7 +99,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
       <div className="w-full max-w-md">
         <div className="mb-6 flex items-center justify-between">
           <Link to="/">
-            <KudoLogo />
+            <CredoraLogo />
           </Link>
           <ThemeToggle />
         </div>
@@ -108,7 +108,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
           {step === "signIn" ? (
             <>
               <div className="mb-6">
-                <h1 className="font-serif text-xl font-bold tracking-tight">Sign in to Kudo</h1>
+                <h1 className="font-serif text-xl font-bold tracking-tight">Sign in to Credora</h1>
                 <p className="mt-1.5 text-sm text-muted-foreground">
                   Administrators sign in with email — we'll send a one-time code.
                 </p>

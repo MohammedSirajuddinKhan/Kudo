@@ -49,7 +49,7 @@ const clone = <T,>(v: T): T => JSON.parse(JSON.stringify(v));
 
 /** Shared offscreen measurer so on-certificate text matches the export engine exactly. */
 const measureTextWidth = createTextMeasurer();
-const TEST_CERTIFICATE_ID = "KUDO-0000-TEST";
+const TEST_CERTIFICATE_ID = "CREDORA-0000-TEST";
 
 export default function TemplateEditor() {
   const { id } = useParams();
@@ -518,8 +518,8 @@ export default function TemplateEditor() {
                   assetHeight={assetH}
                   fields={textFields}
                   values={testValues}
-                  certificateId="KUDO-0000-TEST"
-                  verifyUrl={`${window.location.origin}/verify/KUDO-0000-TEST`}
+                  certificateId="CREDORA-0000-TEST"
+                  verifyUrl={`${window.location.origin}/verify/CREDORA-0000-TEST`}
                   showQr={true}
                 />
               )}

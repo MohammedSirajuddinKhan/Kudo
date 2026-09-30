@@ -76,7 +76,7 @@ const schema = defineSchema(
       role: v.optional(roleValidator), // role of the user. do not remove
     }).index("email", ["email"]), // index for the email. do not remove or modify
 
-    // ─── Kudo domain tables ────────────────────────────────────────────────
+    // ─── Credora domain tables ─────────────────────────────────────────────
 
     // A certificate design uploaded by an admin. The original asset is immutable.
     templates: defineTable({
@@ -111,7 +111,7 @@ const schema = defineSchema(
 
     // An issued certificate. Values snapshot the field labels at issue time.
     certificates: defineTable({
-      certificateId: v.string(), // globally unique, e.g. KUDO-2026-000184
+      certificateId: v.string(), // globally unique, e.g. CREDORA-2026-000184
       templateId: v.id("templates"),
       templateName: v.string(), // snapshot for display
       templateVersion: v.number(),
